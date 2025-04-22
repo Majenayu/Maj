@@ -85,7 +85,7 @@ app.post("/update-location", async (req, res) => {
 
         // Update the driver's location in the collection
         await routeCollection.updateOne(
-            {},
+            {start, end },
             { $set: { driverLocation: { lat, lng },
                      passengerCount: count,  
                      timestamp: new Date() } },
