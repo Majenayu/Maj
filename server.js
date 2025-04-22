@@ -1,3 +1,6 @@
+
+
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -75,7 +78,12 @@ function getRouteCollection(start, end) {
 app.post("/update-location", async (req, res) => {
     try {
         const { start, end, lat, lng ,passengerCount: count  } = req.body;
-        if (!start || !end || !lat || !lng) {
+
+          // Log to verify incoming data
+        console.log("Received data:", req.body);
+
+        
+        if (!start || !end || !lat || !lng|| count === undefined) {
             return res.status(400).json({ error: "Missing required parameters" });
         }
 
@@ -84,15 +92,22 @@ app.post("/update-location", async (req, res) => {
         if (!routeCollection) return res.status(404).json({ error: "Route not found" });
 
         // Update the driver's location in the collection
-        await routeCollection.updateOne(
-            {start, end },
-            { $set: { driverLocation: { lat, lng },
-                     passengerCount: count,  
-                     timestamp: new Date() } },
+     const updateResult = await routeCollection.updateOne(
+            { start, end },
+            { $set: { 
+                driverLocation: { lat, lng },
+                passengerCount: count,  
+                timestamp: new Date() 
+            }},
             { upsert: true }
         );
 
-        res.json({ message: "Driver location updated successfully" });
+        // If no document was updated, inform the user
+        if (updateResult.matchedCount === 0 && updateResult.upsertedCount === 0) {
+            return res.status(404).json({ error: "No matching route found to update" });
+        }
+
+        res.json({ message: "Driver location and passenger count updated successfully" });
     } catch (error) {
         console.error("Error updating location:", error);
         res.status(500).json({ error: "Server error" });
