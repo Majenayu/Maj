@@ -1,3 +1,14 @@
+    function showToast(message, type) {
+        const toastContainer = document.getElementById("toastContainer");
+        if (!toastContainer) return;
+        const toast = document.createElement("div");
+        toast.className = `toast ${type} show`;
+        toast.innerText = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5000);
+    }
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const apiKey = "mzDLjmDOdq62sKIc4y81FgMv8pqj2ndZWPBraNyCm2w";
     let platform = new H.service.Platform({ 'apikey': apiKey });
@@ -17,15 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     
 
-    function showToast(message, type) {
-        const toastContainer = document.getElementById("toastContainer");
-        if (!toastContainer) return;
-        const toast = document.createElement("div");
-        toast.className = `toast ${type} show`;
-        toast.innerText = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5000);
-    }
+
 
     function removePreviousRoute(route) {
         if (route) map.removeObject(route);
@@ -207,13 +210,28 @@ document.getElementById("decreasePassenger").onclick = () => {
         document.getElementById("passengerCount").innerText = passengerCount;
     }
 };
+
+
 document.getElementById("confirmPassenger").onclick = () => {
-    const count = passengerCount;
-    alert(`🚍 Confirmed: ${count} passenger(s) selected`);
-    
-    // Optional: Collapse the panel after confirming
+    alert(`🚍 Confirmed: ${passengerCount} passenger(s) selected`);
     document.getElementById("passengerPanel").style.display = "none";
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                sendDriverLocationToServer(position.coords.latitude, position.coords.longitude);
+            },
+            (error) => {
+                showToast("❌ Unable to get location", "error");
+            }
+        );
+    } else {
+        showToast("❌ Geolocation not supported.", "error");
+    }
 };
+
+
+
 function sendDriverLocationToServer(lat, lng) {
     let startCoords = document.getElementById("startPoint").value.split(",").map(Number);
     let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
