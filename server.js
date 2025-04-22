@@ -74,7 +74,7 @@ function getRouteCollection(start, end) {
 // API to update the driver's location
 app.post("/update-location", async (req, res) => {
     try {
-        const { start, end, lat, lng } = req.body;
+        const { start, end, lat, lng ,passengerCount: count  } = req.body;
         if (!start || !end || !lat || !lng) {
             return res.status(400).json({ error: "Missing required parameters" });
         }
@@ -86,37 +86,13 @@ app.post("/update-location", async (req, res) => {
         // Update the driver's location in the collection
         await routeCollection.updateOne(
             {},
-            { $set: { driverLocation: { lat, lng }, timestamp: new Date() } },
+            { $set: { driverLocation: { lat, lng }, passengerCount: count,  timestamp: new Date() } },
             { upsert: true }
         );
 
         res.json({ message: "Driver location updated successfully" });
     } catch (error) {
         console.error("Error updating location:", error);
-        res.status(500).json({ error: "Server error" });
-    }
-});
-
-// Update passenger count
-app.post("/update-passenger-count", async (req, res) => {
-    try {
-        const { start, end, count } = req.body;
-        if (!start || !end || typeof count !== "number") {
-            return res.status(400).json({ error: "Missing or invalid parameters" });
-        }
-
-        const routeCollection = getRouteCollection(start, end);
-        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
-
-        await routeCollection.updateOne(
-            {},
-            { $set: { passengerCount: count, timestamp: new Date() } },
-            { upsert: true }
-        );
-
-        res.json({ message: "Passenger count updated successfully" });
-    } catch (error) {
-        console.error("Error updating passenger count:", error);
         res.status(500).json({ error: "Server error" });
     }
 });
