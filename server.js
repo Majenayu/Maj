@@ -118,6 +118,35 @@ app.get("/get-driver-location", async (req, res) => {
     }
 });
 
+
+let driverInfo = {
+    lat: null,
+    lng: null,
+    passengerCount: 0,
+    start: [],
+    end: []
+};
+
+// Route to handle incoming driver data
+app.post('/update-location1', (req, res) => {
+    const { lat, lng, passengerCount, start, end } = req.body;
+
+    if (lat && lng && start && end) {
+        driverInfo = {
+            lat,
+            lng,
+            passengerCount,
+            start,
+            end
+        };
+        console.log("✅ Updated driver info:", driverInfo);
+        res.json({ message: 'Location and passenger count updated.' });
+    } else {
+        console.log("❌ Missing data in request body");
+        res.status(400).json({ message: 'Invalid data format.' });
+    }
+});
+
 app.get("/", (req, res) => {
     res.send("Backend is running!");
 });
