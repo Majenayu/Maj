@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showToast("❌ Failed to access location.", "error");
         }, { enableHighAccuracy: true });
         showToast("✅ Location enabled!", "success");
-        document.getElementById("userRouteBtn").style.display = "block";
+        document.getElementById("userRouteBtn").style1.display = "block";
     });
   
 
