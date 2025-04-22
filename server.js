@@ -97,6 +97,32 @@ app.post("/update-location", async (req, res) => {
     }
 });
 
+// Update passenger count
+app.post("/update-passenger-count", async (req, res) => {
+    try {
+        const { start, end, count } = req.body;
+        if (!start || !end || typeof count !== "number") {
+            return res.status(400).json({ error: "Missing or invalid parameters" });
+        }
+
+        const routeCollection = getRouteCollection(start, end);
+        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
+
+        await routeCollection.updateOne(
+            {},
+            { $set: { passengerCount: count, timestamp: new Date() } },
+            { upsert: true }
+        );
+
+        res.json({ message: "Passenger count updated successfully" });
+    } catch (error) {
+        console.error("Error updating passenger count:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+
+
 // API to retrieve the driver's location
 app.get("/get-driver-location", async (req, res) => {
     try {
