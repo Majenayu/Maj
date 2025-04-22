@@ -203,3 +203,15 @@ document.addEventListener("DOMContentLoaded", function () {
     updateCurrentTime();  // Call immediately to set initial time
 
 });
+
+
+// Get the passenger count input element and the display element
+const passengerCountInput = document.getElementById("passengerCount");
+const passengerCountDisplay = document.getElementById("passengerCountDisplay");
+
+// Update the displayed passenger count whenever the input changes
+passengerCountInput.addEventListener("input", function() {
+    const passengerCount = passengerCountInput.value;
+    passengerCountDisplay.textContent = passengerCount;
+});
+
