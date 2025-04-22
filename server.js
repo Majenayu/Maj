@@ -117,15 +117,23 @@ app.post("/update-location", async (req, res) => {
 });
 
 // API to retrieve the driver's location
+// Update the /get-driver-location API
 app.get("/get-driver-location", async (req, res) => {
     try {
         const { start, end } = req.query;
+
         if (!start || !end) {
             return res.status(400).json({ error: "Missing start or end parameters" });
         }
 
+        const startCoords = start.split(',').map(Number);
+        const endCoords = end.split(',').map(Number);
+
+        // Log to verify the coordinates
+        console.log('Start:', startCoords, 'End:', endCoords);
+
         // Get the corresponding MongoDB collection
-        const routeCollection = getRouteCollection(JSON.parse(start), JSON.parse(end));
+        const routeCollection = getRouteCollection(startCoords, endCoords);
         if (!routeCollection) {
             return res.status(404).json({ error: "Route not found" });
         }
@@ -146,6 +154,7 @@ app.get("/get-driver-location", async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 });
+
 
 app.get("/", (req, res) => {
     res.send("Backend is running!");
