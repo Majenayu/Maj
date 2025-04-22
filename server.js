@@ -1,6 +1,3 @@
-
-
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -62,7 +59,6 @@ const routeCollections = [
     { start: [15.3647, 75.1239], end: [12.2958, 76.6394], collection: "30" },];
 
 // Function to get the correct MongoDB collection
-// Function to get the correct MongoDB collection
 function getRouteCollection(start, end) {
     start = start.map(Number);
     end = end.map(Number);
@@ -78,70 +74,56 @@ function getRouteCollection(start, end) {
 // API to update the driver's location
 app.post("/update-location", async (req, res) => {
     try {
-        const { start, end, lat, lng, passengerCount: count } = req.body;
-
-        // Log to verify incoming data
-        console.log("Received data:", req.body);
-
-        if (!start || !end || !lat || !lng || count === undefined) {
+        const { start, end, lat, lng ,passengerCount: count  } = req.body;
+        if (!start || !end || !lat || !lng) {
             return res.status(400).json({ error: "Missing required parameters" });
         }
 
         // Get the appropriate MongoDB collection
         const routeCollection = getRouteCollection(start, end);
-        if (!routeCollection) {
-            return res.status(404).json({ error: "Route not found" });
-        }
+        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
 
         // Update the driver's location in the collection
-        const updateResult = await routeCollection.updateOne(
-            { start, end },
-            { $set: { 
-                driverLocation: { lat, lng },
-                passengerCount: count,  
-                timestamp: new Date() 
-            }},
+        await routeCollection.updateOne(
+            {start, end },
+            { $set: { driverLocation: { lat, lng },
+                     passengerCount: count,  
+                     timestamp: new Date() } },
             { upsert: true }
         );
 
-        // If no document was updated, inform the user
-        if (updateResult.matchedCount === 0 && updateResult.upsertedCount === 0) {
-            return res.status(404).json({ error: "No matching route found to update" });
-        }
-
-        res.json({ message: "Driver location and passenger count updated successfully" });
+        res.json({ message: "Driver location updated successfully" });
     } catch (error) {
         console.error("Error updating location:", error);
         res.status(500).json({ error: "Server error" });
     }
 });
 
+
+
 // API to retrieve the driver's location
-// Update the /get-driver-location API
 app.get("/get-driver-location", async (req, res) => {
     try {
         const { start, end } = req.query;
-
         if (!start || !end) {
             return res.status(400).json({ error: "Missing start or end parameters" });
         }
 
-        const startCoords = start.split(',').map(Number);
-        const endCoords = end.split(',').map(Number);
-
-        // Log to verify the coordinates
-        console.log('Start:', startCoords, 'End:', endCoords);
-
         // Get the corresponding MongoDB collection
-        const routeCollection = getRouteCollection(startCoords, endCoords);
-        if (!routeCollection) {
-            return res.status(404).json({ error: "Route not found" });
-        }
+        const routeCollection = getRouteCollection(JSON.parse(start), JSON.parse(end));
+        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
 
+        // Retrieve the driver's latest location
+        const driverLocation = await routeCollection.findOne({}, { projection: { _id: 0 } });
+        if (!driverLocation) return res.status(404).json({ message: "No driver available on this route" });
+
+
+          try {
         // Fetch the driver's location and passenger count from the collection
-        const driverData = await routeCollection.findOne({}, { projection: { _id: 0 } });
+        const driverData = await routeCollection.findOne({});
+
         if (!driverData) {
-            return res.status(404).json({ message: "No driver available on this route" });
+            return res.status(404).json({ error: "No driver data found for this route" });
         }
 
         // Send back the driver's location and passenger count
@@ -149,16 +131,23 @@ app.get("/get-driver-location", async (req, res) => {
             driverLocation: driverData.driverLocation,
             passengerCount: driverData.passengerCount
         });
+    } catch (err) {
+        console.error("Error fetching driver data:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+
+
+        
+        res.json(driverLocation);
     } catch (error) {
         console.error("Error fetching driver location:", error);
         res.status(500).json({ error: "Server error" });
     }
 });
-
-
 app.get("/", (req, res) => {
     res.send("Backend is running!");
 });
+
 
 // Start the server
 app.listen(PORT, () => {
