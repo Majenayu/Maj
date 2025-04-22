@@ -22,9 +22,20 @@ document.addEventListener("DOMContentLoaded", function () {
             let data = await response.json();
             if (data && data.driverLocation) {
                 driverLocation = data.driverLocation;
+
+                 let passengerCount = data.passengerCount;
+                
                 console.log("Driver location fetched:", driverLocation);
+
+                  console.log("Passenger count:", passengerCount); // You can display or use the passenger count as needed
+                
                 updateDriverLocation(driverLocation.lat, driverLocation.lng);
-                return true;
+
+                 // Optionally display the passenger count on the UI
+            document.getElementById("passengerCount").innerText = `Passenger Count: ${passengerCount}`;
+            return true;
+
+
             } else {
                 console.log("No active driver found.");
                 return false;
