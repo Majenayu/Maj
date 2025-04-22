@@ -86,7 +86,9 @@ app.post("/update-location", async (req, res) => {
         // Update the driver's location in the collection
         await routeCollection.updateOne(
             {},
-            { $set: { driverLocation: { lat, lng }, passengerCount: count,  timestamp: new Date() } },
+            { $set: { driverLocation: { lat, lng },
+                     passengerCount: count,  
+                     timestamp: new Date() } },
             { upsert: true }
         );
 
@@ -115,6 +117,27 @@ app.get("/get-driver-location", async (req, res) => {
         const driverLocation = await routeCollection.findOne({}, { projection: { _id: 0 } });
         if (!driverLocation) return res.status(404).json({ message: "No driver available on this route" });
 
+
+          try {
+        // Fetch the driver's location and passenger count from the collection
+        const driverData = await routeCollection.findOne({});
+
+        if (!driverData) {
+            return res.status(404).json({ error: "No driver data found for this route" });
+        }
+
+        // Send back the driver's location and passenger count
+        res.json({
+            driverLocation: driverData.driverLocation,
+            passengerCount: driverData.passengerCount
+        });
+    } catch (err) {
+        console.error("Error fetching driver data:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+
+
+        
         res.json(driverLocation);
     } catch (error) {
         console.error("Error fetching driver location:", error);
