@@ -162,32 +162,36 @@ console.log("Displaying in:", document.getElementById("passengerCountDisplay"));
     });
 
     // ✅ Checking for Driver & Route Calculation
-    document.getElementById("checkDriver").addEventListener("click", async function () {
-        let startSelect = document.getElementById("start");
-        let endSelect = document.getElementById("end");
+document.getElementById("checkDriver").addEventListener("click", async function () {
+    let startSelect = document.getElementById("start");
+    let endSelect = document.getElementById("end");
 
-        if (!startSelect.value || !endSelect.value) {
-            alert("Please select both start and end locations first.");
-            return;
-        }
+    if (!startSelect.value || !endSelect.value) {
+        alert("Please select both start and end locations first.");
+        return;
+    }
 
-        if (!selectedLocation) {
-            alert("Please select a location on the map.");
-            return;
-        }
+    if (!selectedLocation) {
+        alert("Please select a location on the map.");
+        return;
+    }
 
-        let startCoords = startSelect.value.split(",").map(Number);
-        let endCoords = endSelect.value.split(",").map(Number);
+    let startCoords = startSelect.value.split(",").map(Number);
+    let endCoords = endSelect.value.split(",").map(Number);
 
-        let driverFound = await fetchDriverLocation(startCoords, endCoords);
-        if (!driverFound) {
-            showToast("No active driver found.", "info");
-            return;
-        }
+    // ✅ Fetch passenger count
+    fetchPassengerCount(startCoords, endCoords);
 
-        alert(`Generating route from Driver (${driverLocation.lat}, ${driverLocation.lng}) to Selected Location (${selectedLocation.lat}, ${selectedLocation.lng})`);
-        calculateRoute(driverLocation, selectedLocation);
-    });
+    // ✅ Then fetch driver location
+    let driverFound = await fetchDriverLocation(startCoords, endCoords);
+    if (!driverFound) {
+        showToast("No active driver found.", "info");
+        return;
+    }
+
+    alert(`Generating route from Driver (${driverLocation.lat}, ${driverLocation.lng}) to Selected Location (${selectedLocation.lat}, ${selectedLocation.lng})`);
+    calculateRoute(driverLocation, selectedLocation);
+});
 
     // ✅ Toast Message Function
     function showToast(message, type) {
