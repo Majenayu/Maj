@@ -53,7 +53,6 @@ async function fetchPassengerCount(startCoords, endCoords) {
             updatePassengerDisplay("N/A");
         }
     } catch (error) {
-        alert("Error connecting to the server. Please try again.");
         console.error("Error fetching passenger count:", error);
     }
 }
