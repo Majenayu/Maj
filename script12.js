@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
     }
-
+// Fetch passenger count when start and end coordinates are provided
 async function fetchPassengerCount(startCoords, endCoords) {
     try {
         // Construct URL without stringifying the coordinates
@@ -59,7 +59,7 @@ async function fetchPassengerCount(startCoords, endCoords) {
 }
 
 function updatePassengerDisplay(count) {
-    const countElement = document.getElementById("passengerCount");
+    const countElement = document.getElementById("passengerCountDisplay");
     if (countElement) {
         countElement.textContent = `👥 Passengers: ${count}`;
     }
