@@ -9,6 +9,12 @@ body {
     text-align: center;
     color: rgb(0, 0, 0);
 }
+#passengerPanel {
+    display: none;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+}
 
 /* Heading Styles */
 h2 {
