@@ -221,15 +221,13 @@ document.getElementById("toggleSidebar").addEventListener("click", () => {
 
 document.getElementById("increasePassenger").addEventListener("click", () => {
     passengerCount++;
-    // Update the correct element: passengerCountDisplay
-    document.getElementById("passengerCountDisplay").innerText = `👥 Passengers: ${passengerCount}`;
+    updatePassengerCountUI();
 });
 
 document.getElementById("decreasePassenger").addEventListener("click", () => {
     if (passengerCount > 0) {
         passengerCount--;
-        // Update the correct element: passengerCountDisplay
-        document.getElementById("passengerCountDisplay").innerText = `👥 Passengers: ${passengerCount}`;
+        updatePassengerCountUI();
     }
 });
 
