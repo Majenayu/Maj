@@ -211,8 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-
-   let passengerCount = 0;
+let passengerCount = 0;
 
 document.getElementById("toggleSidebar").addEventListener("click", () => {
     const panel = document.getElementById("passengerPanel");
@@ -253,6 +252,16 @@ document.getElementById("confirmPassenger").addEventListener("click", () => {
         showToast("❌ Failed to update passenger count.", "error");
     });
 });
+
+function updatePassengerCountUI() {
+    // Sidebar count display
+    const sidebarCount = document.getElementById("passengerCount");
+    if (sidebarCount) sidebarCount.innerText = passengerCount;
+
+    // Info table display
+    const infoTableCount = document.getElementById("passengerCountDisplay");
+    if (infoTableCount) infoTableCount.innerText = `👥 Passengers: ${passengerCount}`;
+}
 
 
     
