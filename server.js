@@ -15,7 +15,8 @@ app.use(express.static(path.join(__dirname, "public")));
 // Serve script1.js and script.js from their current location
 app.use("/script1.js", express.static(path.join(__dirname, "script1.js")));
 app.use("/script.js", express.static(path.join(__dirname, "script.js")));
-
+app.use("/script1.js", express.static(path.join(__dirname, "script11.js")));
+app.use("/script.js", express.static(path.join(__dirname, "script12.js")));
 
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://ayu:ayu@ayu.cawv7.mongodb.net/yourDatabaseName?retryWrites=true&w=majority&appName=ayu")
