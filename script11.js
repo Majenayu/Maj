@@ -209,6 +209,48 @@ document.addEventListener("DOMContentLoaded", function () {
         let currentZoom = map.getZoom();
         map.setZoom(currentZoom - 1);
     });
+
+
+
+    let passengerCount = 0;
+
+document.getElementById("increasePassenger").addEventListener("click", () => {
+    passengerCount++;
+    document.getElementById("passengerCount").innerText = passengerCount;
+});
+
+document.getElementById("decreasePassenger").addEventListener("click", () => {
+    if (passengerCount > 0) {
+        passengerCount--;
+        document.getElementById("passengerCount").innerText = passengerCount;
+    }
+});
+
+
+    document.getElementById("confirmPassenger").addEventListener("click", () => {
+    let startCoords = document.getElementById("startPoint").value.split(",").map(Number);
+    let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
+
+    fetch("https://maj-65qm.onrender.com/update-passenger-count", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            start: startCoords,
+            end: endCoords,
+            count: passengerCount
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        showToast("✅ Passenger count updated!", "success");
+    })
+    .catch(err => {
+        console.error("Error updating passenger count:", err);
+        showToast("❌ Failed to update passenger count.", "error");
+    });
+});
+
+
     
     
 });
