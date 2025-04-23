@@ -72,11 +72,14 @@ async function fetchPassengerCount(startCoords, endCoords) {
 
 
 function updatePassengerDisplay(count) {
-    const countElement = document.getElementById("passengerCountDisplay");
-    if (countElement) {
-        countElement.textContent = `👥 Passengers: ${count}`;
-    }
+    const displayBox = document.getElementById("passengerCountDisplay");
+    const tableCell = document.getElementById("passengerCountTable");
+
+    const text = `👥 Passengers: ${count}`;
+    if (displayBox) displayBox.textContent = text;
+    if (tableCell) tableCell.textContent = count;
 }
+
 
     function updateDriverLocation(lat, lng) {
         if (driverMarker) map.removeObject(driverMarker);
