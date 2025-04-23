@@ -57,6 +57,18 @@ async function fetchPassengerCount(startCoords, endCoords) {
     }
 }
 
+
+    function updatePassengerCountUI() {
+    // Sidebar count display
+    const sidebarCount = document.getElementById("passengerCount");
+    if (sidebarCount) sidebarCount.innerText = passengerCount;
+
+    // Info table display
+    const infoTableCount = document.getElementById("passengerCountDisplay");
+    if (infoTableCount) infoTableCount.innerText = `👥 Passengers: ${passengerCount}`;
+}
+
+
     document.getElementById("checkDriver").addEventListener("click", () => {
     const startValue = document.getElementById("start").value;
     const endValue = document.getElementById("end").value;
