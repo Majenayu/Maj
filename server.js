@@ -147,6 +147,41 @@ app.get("/get-driver-location", async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 });
+
+
+
+// API to retrieve the passenger count on a specific route
+app.get("/get-passenger-count", async (req, res) => {
+    try {
+        const { start, end } = req.query;
+        if (!start || !end) {
+            return res.status(400).json({ error: "Missing start or end parameters" });
+        }
+
+        // Get the appropriate MongoDB collection
+        const routeCollection = getRouteCollection(JSON.parse(start), JSON.parse(end));
+        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
+
+        // Fetch the latest passenger count
+        const passengerData = await routeCollection.findOne({}, {
+            projection: { _id: 0, passengerCount: 1, passengerUpdateTime: 1 }
+        });
+
+        if (!passengerData || passengerData.passengerCount === undefined) {
+            return res.status(404).json({ message: "No passenger data available on this route" });
+        }
+
+        res.json(passengerData);
+    } catch (error) {
+        console.error("Error fetching passenger count:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+
+
+
+
 app.get("/", (req, res) => {
     res.send("Backend is running!");
 });
