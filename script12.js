@@ -14,29 +14,55 @@ document.addEventListener("DOMContentLoaded", function () {
     let driverLocation = null;
     let selectedLocation = null;
 
-   async function fetchDriverLocation(startCoords, endCoords) {
+    async function fetchDriverLocation(startCoords, endCoords) {
+        try {
+            let response = await fetch(`https://maj-65qm.onrender.com/get-driver-location?start=${JSON.stringify(startCoords)}&end=${JSON.stringify(endCoords)}`);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+            let data = await response.json();
+            if (data && data.driverLocation) {
+                driverLocation = data.driverLocation;
+                console.log("Driver location fetched:", driverLocation);
+                updateDriverLocation(driverLocation.lat, driverLocation.lng);
+                return true;
+            } else {
+                console.log("No active driver found.");
+                return false;
+            }
+        } catch (error) {
+            alert("Error connecting to the server. Please try again.");
+            console.error("Error fetching driver location:", error);
+            return false;
+        }
+    }
+
+    async function fetchPassengerCount(startCoords, endCoords) {
     try {
-        // Pass coordinates directly as query parameters
-        let response = await fetch(`https://maj-65qm.onrender.com/get-driver-location?start=${startCoords.join(',')}&end=${endCoords.join(',')}`);
+        let response = await fetch(`https://maj-65qm.onrender.com/get-passenger-count?start=${JSON.stringify(startCoords)}&end=${JSON.stringify(endCoords)}`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         let data = await response.json();
-        if (data && data.driverLocation) {
-            driverLocation = data.driverLocation;
-            let passengerCount = data.passengerCount;
-            console.log("Driver location fetched:", driverLocation);
-            console.log("Passenger count:", passengerCount);
-            updateDriverLocation(driverLocation.lat, driverLocation.lng);
-            document.getElementById("passengerCount").innerText = `Passenger Count: ${passengerCount}`;
+        if (data && data.passengerCount !== undefined) {
+            console.log("Passenger count fetched:", data.passengerCount);
+            updatePassengerDisplay(data.passengerCount);
             return true;
         } else {
-            console.log("No active driver found.");
+            console.log("No passenger data found.");
+            updatePassengerDisplay("N/A");
             return false;
         }
     } catch (error) {
         alert("Error connecting to the server. Please try again.");
-        console.error("Error fetching driver location:", error);
+        console.error("Error fetching passenger count:", error);
         return false;
+    }
+}
+
+
+    function updatePassengerDisplay(count) {
+    const countElement = document.getElementById("passengerCountDisplay");
+    if (countElement) {
+        countElement.textContent = `👥 Passengers: ${count}`;
     }
 }
 
@@ -197,15 +223,3 @@ document.addEventListener("DOMContentLoaded", function () {
     updateCurrentTime();  // Call immediately to set initial time
 
 });
-
-
-// Get the passenger count input element and the display element
-const passengerCountInput = document.getElementById("passengerCount");
-const passengerCountDisplay = document.getElementById("passengerCountDisplay");
-
-// Update the displayed passenger count whenever the input changes
-passengerCountInput.addEventListener("input", function() {
-    const passengerCount = passengerCountInput.value;
-    passengerCountDisplay.textContent = passengerCount;
-});
-
