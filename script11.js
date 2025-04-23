@@ -212,29 +212,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    let passengerCount = 0;
-
+   let passengerCount = 0;
 
 document.getElementById("toggleSidebar").addEventListener("click", () => {
     const panel = document.getElementById("passengerPanel");
     panel.style.display = panel.style.display === "none" ? "block" : "none";
 });
 
-    
 document.getElementById("increasePassenger").addEventListener("click", () => {
     passengerCount++;
-    document.getElementById("passengerCount").innerText = passengerCount;
+    // Update the correct element: passengerCountDisplay
+    document.getElementById("passengerCountDisplay").innerText = `👥 Passengers: ${passengerCount}`;
 });
 
 document.getElementById("decreasePassenger").addEventListener("click", () => {
     if (passengerCount > 0) {
         passengerCount--;
-        document.getElementById("passengerCount").innerText = passengerCount;
+        // Update the correct element: passengerCountDisplay
+        document.getElementById("passengerCountDisplay").innerText = `👥 Passengers: ${passengerCount}`;
     }
 });
 
-
-    document.getElementById("confirmPassenger").addEventListener("click", () => {
+document.getElementById("confirmPassenger").addEventListener("click", () => {
     let startCoords = document.getElementById("startPoint").value.split(",").map(Number);
     let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
 
