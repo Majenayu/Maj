@@ -59,7 +59,7 @@ async function fetchPassengerCount(startCoords, endCoords) {
 }
 
 function updatePassengerDisplay(count) {
-    const countElement = document.getElementById("passengerCountDisplay");
+    const countElement = document.getElementById("passengerCount");
     if (countElement) {
         countElement.textContent = `👥 Passengers: ${count}`;
     }
