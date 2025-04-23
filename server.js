@@ -155,26 +155,29 @@ app.get("/get-passenger-count", async (req, res) => {
     try {
         const { start, end } = req.query;
         if (!start || !end) {
-            return res.status(400).json({ error: "Missing start or end parameters" });
+            return res.status(400).json({ error: "Missing start or end coordinates" });
         }
 
-        // Get the appropriate MongoDB collection
-        const routeCollection = getRouteCollection(JSON.parse(start), JSON.parse(end));
-        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
+        const startCoords = start.split(',').map(Number);
+        const endCoords = end.split(',').map(Number);
 
-        // Fetch the latest passenger count
-   const passengerData = await routeCollection.findOne({}, {
-    projection: { _id: 0, passengerCount: 1, passengerUpdateTime: 1 }
-});
-if (!passengerData) return res.status(404).json({ message: "No passenger data available on this route" });
+        const routeCollection = getRouteCollection(startCoords, endCoords);
+        if (!routeCollection) {
+            return res.status(404).json({ error: "No route found for the given coordinates" });
+        }
 
-res.json(passengerData);
+        const countDoc = await routeCollection.findOne({}, { projection: { passengerCount: 1, _id: 0 } });
+        if (!countDoc || countDoc.passengerCount === undefined) {
+            return res.status(404).json({ error: "No passenger count available" });
+        }
 
-    } catch (error) {
-        console.error("Error fetching passenger count:", error);
-        res.status(500).json({ error: "Server error" });
+        res.json({ passengerCount: countDoc.passengerCount });
+    } catch (err) {
+        console.error("Server error in /get-passenger-count:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
+
 
 
 
