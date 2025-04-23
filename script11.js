@@ -217,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.getElementById("toggleSidebar").addEventListener("click", () => {
     const panel = document.getElementById("passengerPanel");
-    panel.styles.display = panel.styles.display === "none" ? "block" : "none";
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
 });
 
     
