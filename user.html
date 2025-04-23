@@ -11,7 +11,24 @@
     <link rel="stylesheet" href="styles1.css">
 </head>
 <body>
+<style>
+    .top-left-link {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+    }
 
+    .top-left-link:hover {
+        background-color: #0056b3;
+    }
+</style>
 <h2>User Route Selection</h2>
 
 <!-- Dropdowns for Start and End Locations -->
@@ -51,9 +68,9 @@
 <!-- Map Container -->
 <div id="map"></div>
 <!-- Redirect Button using <a> tag -->
-<a href="user2.html">
-    <button>Go to User 2</button>
-</a>
+  <a href="user2.html" class="top-left-link">
+       Find Auto
+    </a>
 
 <!-- Transparent Table for Live Tracking -->
 <div class="info-table">
