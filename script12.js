@@ -58,6 +58,19 @@ async function fetchPassengerCount(startCoords, endCoords) {
     }
 }
 
+    document.getElementById("checkDriver").addEventListener("click", () => {
+    const startValue = document.getElementById("start").value;
+    const endValue = document.getElementById("end").value;
+
+    if (startValue && endValue) {
+        const startCoords = startValue.split(",").map(Number);
+        const endCoords = endValue.split(",").map(Number);
+
+        fetchPassengerCount(startCoords, endCoords);
+    }
+});
+
+
 function updatePassengerDisplay(count) {
     const countElement = document.getElementById("passengerCountDisplay");
     if (countElement) {
