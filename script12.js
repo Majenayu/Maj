@@ -74,6 +74,7 @@ async function fetchPassengerCount(startCoords, endCoords) {
 function updatePassengerDisplay(count) {
     const displayBox = document.getElementById("passengerCountDisplay");
     const tableCell = document.getElementById("passengerCountTable");
+console.log("Displaying in:", document.getElementById("passengerCountDisplay"));
 
     const text = `👥 Passengers: ${count}`;
     if (displayBox) displayBox.textContent = text;
