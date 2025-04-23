@@ -36,36 +36,34 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    async function fetchPassengerCount(startCoords, endCoords) {
+async function fetchPassengerCount(startCoords, endCoords) {
     try {
-        let response = await fetch(`https://maj-65qm.onrender.com/get-passenger-count?start=${JSON.stringify(startCoords)}&end=${JSON.stringify(endCoords)}`);
+        // Construct URL without stringifying the coordinates
+        const response = await fetch(`https://maj-65qm.onrender.com/get-passenger-count?start=${startCoords.join(",")}&end=${endCoords.join(",")}`);
+        
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-        let data = await response.json();
+        const data = await response.json();
+
         if (data && data.passengerCount !== undefined) {
             console.log("Passenger count fetched:", data.passengerCount);
             updatePassengerDisplay(data.passengerCount);
-            return true;
         } else {
             console.log("No passenger data found.");
             updatePassengerDisplay("N/A");
-            return false;
         }
     } catch (error) {
         alert("Error connecting to the server. Please try again.");
         console.error("Error fetching passenger count:", error);
-        return false;
     }
 }
 
-
-    function updatePassengerDisplay(count) {
+function updatePassengerDisplay(count) {
     const countElement = document.getElementById("passengerCountDisplay");
     if (countElement) {
         countElement.textContent = `👥 Passengers: ${count}`;
     }
 }
-
 
     function updateDriverLocation(lat, lng) {
         if (driverMarker) map.removeObject(driverMarker);
