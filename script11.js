@@ -1,14 +1,3 @@
-    function showToast(message, type) {
-        const toastContainer = document.getElementById("toastContainer");
-        if (!toastContainer) return;
-        const toast = document.createElement("div");
-        toast.className = `toast ${type} show`;
-        toast.innerText = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5000);
-    }
-
-
 document.addEventListener("DOMContentLoaded", function () {
     const apiKey = "mzDLjmDOdq62sKIc4y81FgMv8pqj2ndZWPBraNyCm2w";
     let platform = new H.service.Platform({ 'apikey': apiKey });
@@ -28,7 +17,15 @@ document.addEventListener("DOMContentLoaded", function () {
     
     
 
-
+    function showToast(message, type) {
+        const toastContainer = document.getElementById("toastContainer");
+        if (!toastContainer) return;
+        const toast = document.createElement("div");
+        toast.className = `toast ${type} show`;
+        toast.innerText = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5000);
+    }
 
     function removePreviousRoute(route) {
         if (route) map.removeObject(route);
@@ -82,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showToast("❌ Failed to access location.", "error");
         }, { enableHighAccuracy: true });
         showToast("✅ Location enabled!", "success");
-        document.getElementById("userRouteBtn").styles1.display = "block";
+        document.getElementById("userRouteBtn").style.display = "block";
     });
   
 
@@ -132,7 +129,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }, () => showToast("❌ Failed to generate route.", "error"));
     }
     
+    function sendDriverLocationToServer(lat, lng) {
+        let startCoords = document.getElementById("startPoint").value.split(",").map(Number);
+        let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
     
+        fetch("https://maj-65qm.onrender.com/update-location", {
+
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                start: startCoords,
+                end: endCoords,
+                lat: lat,
+                lng: lng
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            showToast("✅ Driver location updated!", "success");
+        })
+        .catch(error => {
+            console.error("Error sending location:", error);
+            showToast("❌ Failed to update driver location.", "error");
+        });
+    }
     function updateUserRoute() {
         if (!userLocation) {
             showToast("❌ Cannot find user location.", "error");
@@ -192,67 +212,3 @@ document.addEventListener("DOMContentLoaded", function () {
     
     
 });
-let passengerCount = 0;
-
-document.getElementById("toggleSidebar").onclick = () => {
-    const panel = document.getElementById("passengerPanel");
-    panel.style.display = (panel.style.display === "none") ? "block" : "none";
-};
-
-document.getElementById("increasePassenger").onclick = () => {
-    passengerCount++;
-    document.getElementById("passengerCount").innerText = passengerCount;
-};
-
-document.getElementById("decreasePassenger").onclick = () => {
-    if (passengerCount > 0) {
-        passengerCount--;
-        document.getElementById("passengerCount").innerText = passengerCount;
-    }
-};
-
-
-document.getElementById("confirmPassenger").onclick = () => {
-    alert(`🚍 Confirmed: ${passengerCount} passenger(s) selected`);
-    document.getElementById("passengerPanel").style.display = "none";
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                sendDriverLocationToServer(position.coords.latitude, position.coords.longitude);
-            },
-            (error) => {
-                showToast("❌ Unable to get location", "error");
-            }
-        );
-    } else {
-        showToast("❌ Geolocation not supported.", "error");
-    }
-};
-
-
-
-function sendDriverLocationToServer(lat, lng) {
-    let startCoords = document.getElementById("startPoint").value.split(",").map(Number);
-    let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
-
-    fetch("https://maj-65qm.onrender.com/update-location1", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            start: startCoords,
-            end: endCoords,
-            lat: lat,
-            lng: lng,
-            passengerCount: passengerCount // ✅ Add this line
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        showToast("✅ Driver location and passenger count updated!", "success");
-    })
-    .catch(error => {
-        console.error("Error sending location:", error);
-        showToast("❌ Failed to update driver location.", "error");
-    });
-}
