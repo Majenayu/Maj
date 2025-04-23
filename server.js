@@ -163,15 +163,13 @@ app.get("/get-passenger-count", async (req, res) => {
         if (!routeCollection) return res.status(404).json({ error: "Route not found" });
 
         // Fetch the latest passenger count
-        const passengerData = await routeCollection.findOne({}, {
-            projection: { _id: 0, passengerCount: 1, passengerUpdateTime: 1 }
-        });
+   const passengerData = await routeCollection.findOne({}, {
+    projection: { _id: 0, passengerCount: 1, passengerUpdateTime: 1 }
+});
+if (!passengerData) return res.status(404).json({ message: "No passenger data available on this route" });
 
-        if (!passengerData || passengerData.passengerCount === undefined) {
-            return res.status(404).json({ message: "No passenger data available on this route" });
-        }
+res.json(passengerData);
 
-        res.json(passengerData);
     } catch (error) {
         console.error("Error fetching passenger count:", error);
         res.status(500).json({ error: "Server error" });
