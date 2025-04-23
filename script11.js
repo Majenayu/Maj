@@ -214,6 +214,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let passengerCount = 0;
 
+
+    document.getElementById("toggleSidebar").onclick = () => {
+const panel = document.getElementById("passengerPanel");
+panel.styles.display = (panel.styles.display === "none") ? "block" : "none";
+};
+
+    
 document.getElementById("increasePassenger").addEventListener("click", () => {
     passengerCount++;
     document.getElementById("passengerCount").innerText = passengerCount;
