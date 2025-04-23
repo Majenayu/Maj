@@ -6,15 +6,16 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+
 // Serve script1.js and script.js from their current location
 app.use("/script1.js", express.static(path.join(__dirname, "script1.js")));
 app.use("/script.js", express.static(path.join(__dirname, "script.js")));
-app.use("/script11.js", express.static(path.join(__dirname, "script11.js")));
-app.use("/script12.js", express.static(path.join(__dirname, "script12.js")));
+
 
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://ayu:ayu@ayu.cawv7.mongodb.net/yourDatabaseName?retryWrites=true&w=majority&appName=ayu")
@@ -55,7 +56,6 @@ const routeCollections = [
     { start: [15.3647, 75.1239], end: [15.8497, 74.4977], collection: "29" },
     { start: [15.3647, 75.1239], end: [12.2958, 76.6394], collection: "30" },];
 
-
 // Function to get the correct MongoDB collection
 function getRouteCollection(start, end) {
     start = start.map(Number);
@@ -72,7 +72,7 @@ function getRouteCollection(start, end) {
 // API to update the driver's location
 app.post("/update-location", async (req, res) => {
     try {
-        const { start, end, lat, lng, passengerCount: count } = req.body;
+        const { start, end, lat, lng } = req.body;
         if (!start || !end || !lat || !lng) {
             return res.status(400).json({ error: "Missing required parameters" });
         }
@@ -83,8 +83,8 @@ app.post("/update-location", async (req, res) => {
 
         // Update the driver's location in the collection
         await routeCollection.updateOne(
-            { start, end },
-            { $set: { driverLocation: { lat, lng }, passengerCount: count, timestamp: new Date() } },
+            {},
+            { $set: { driverLocation: { lat, lng }, timestamp: new Date() } },
             { upsert: true }
         );
 
@@ -94,6 +94,35 @@ app.post("/update-location", async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 });
+
+// API to update the passenger count on a specific route
+app.post("/update-passenger-count", async (req, res) => {
+    try {
+        const { start, end, count } = req.body;
+        if (!start || !end || typeof count !== "number") {
+            return res.status(400).json({ error: "Missing or invalid parameters" });
+        }
+
+        // Get the appropriate MongoDB collection
+        const routeCollection = getRouteCollection(start, end);
+        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
+
+        // Update the passenger count in the collection
+        await routeCollection.updateOne(
+            {},
+            { $set: { passengerCount: count, passengerUpdateTime: new Date() } },
+            { upsert: true }
+        );
+
+        res.json({ message: "Passenger count updated successfully" });
+    } catch (error) {
+        console.error("Error updating passenger count:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+
+
 
 // API to retrieve the driver's location
 app.get("/get-driver-location", async (req, res) => {
@@ -117,39 +146,10 @@ app.get("/get-driver-location", async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 });
-
-
-let driverInfo = {
-    lat: null,
-    lng: null,
-    passengerCount: 0,
-    start: [],
-    end: []
-};
-
-// Route to handle incoming driver data
-app.post('/update-location1', (req, res) => {
-    const { lat, lng, passengerCount, start, end } = req.body;
-
-    if (lat && lng && start && end) {
-        driverInfo = {
-            lat,
-            lng,
-            passengerCount,
-            start,
-            end
-        };
-        console.log("✅ Updated driver info:", driverInfo);
-        res.json({ message: 'Location and passenger count updated.' });
-    } else {
-        console.log("❌ Missing data in request body");
-        res.status(400).json({ message: 'Invalid data format.' });
-    }
-});
-
 app.get("/", (req, res) => {
     res.send("Backend is running!");
 });
+
 
 // Start the server
 app.listen(PORT, () => {
