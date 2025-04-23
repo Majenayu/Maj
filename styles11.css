@@ -3,55 +3,84 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background:rgb(110, 123, 131)  url('background.jpg') no-repeat center center fixed;
+    background: rgba(62, 74, 91, 0.69)  url('background.jpg') no-repeat center center fixed;
     background-size: cover;
     backdrop-filter: blur(8px);
     text-align: center;
-    color:  rgb(239, 238, 238);
+    color: rgb(0, 0, 0);
 }
 
 /* Heading Styles */
 h2 {
     margin-top: 70px;
-    font-size: 35px;
+    font-size: 50px;
     font-weight: bold;
 }
 
-/* Button Styles */
-.controls button {
+/* Controls Section */
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* Route Selection Container */
+.route-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.location-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 15px;
+  }
+button {
+    background-color: #007bff;
+    color: rgb(255, 255, 255);
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+  }
+
+/* Dropdown Styling */
+#start, #end {
+    font-size: 14px;
+    padding: 6px;
+    width: 150px;
+    height: 35px;
+    border-radius: 5px;
+}
+
+/* Show Route Button */
+#showRoute {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 18px;
+    padding: 8px 15px;
+    font-size: 16px;
     font-weight: bold;
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s;
 }
 
-.controls button:hover {
-    background-color: #0056b3;
-}
-
-/* Align buttons below heading */
-.controls {
-    display: flex;
-    justify-content: center;
-    margin-top: 0px;
-}
-
-/* Dropdown and Route Button Section */
-.controls select, .controls button {
-    margin: 10px;
+#showRoute:hover {
+    background-color: #a0abb7;
 }
 
 /* Map Styling */
 #map {
     width: 100%;
     height: 600px;
-    margin: 0px auto;
+    margin: 10px auto;
     border-radius: 10px;
 }
 
@@ -59,12 +88,12 @@ h2 {
 .info-table {
     position: absolute;
     top: 250px;
-    left: 35px; /* Default position for PC */
+    left: 35px;
     background: rgba(6, 0, 6, 0.6);
-    padding: 35px;
-    border-radius: 19px;
+    padding: 25px;
+    border-radius: 15px;
     color: white;
-    font-size: 17px;
+    font-size: 15px;
 }
 
 /* Toast Notification Styling */
@@ -76,7 +105,7 @@ h2 {
 }
 
 .toast {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(132, 4, 4, 0.8);
     color: white;
     padding: 15px 20px;
     border-radius: 5px;
@@ -96,19 +125,19 @@ h2 {
 /* GPS Locator Button */
 #gpsLocator {
     position: absolute;
-    bottom: 100px;
-    left: 150px; /* Default position for PC */
-    width: 45px;
-    height: 45px;
-    background: rgb(13, 0, 0);
+    bottom: 1px;
+    left: 150px;
+    width: 40px;
+    height: 40px;
+    background: rgb(0, 0, 0);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0px 4px 6px rgba(167, 45, 45, 0.2);
+    box-shadow: 0px 4px 6px rgb(219, 214, 214);
     cursor: pointer;
     border: none;
-    font-size: 20px;
+    font-size: 18px;
     transition: background 0.3s ease;
     z-index: 1000;
 }
@@ -120,10 +149,10 @@ h2 {
 /* Zoom In & Zoom Out Buttons */
 #zoomIn, #zoomOut {
     position: absolute;
-    left: 150px; /* Default position for PC */
+    left: 150px;
     width: 45px;
     height: 45px;
-    background: rgb(12, 1, 1);
+    background: rgb(0, 0, 0);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -131,17 +160,17 @@ h2 {
     box-shadow: 0px 4px 6px rgb(71, 7, 18);
     cursor: pointer;
     border: none;
-    font-size: 20px;
+    font-size: 18px;
     transition: background 0.3s ease;
     z-index: 1000;
 }
 
 #zoomIn {
-    bottom: 230px; /* Position above the GPS button */
+    bottom: 130px;
 }
 
 #zoomOut {
-    bottom: 170px; /* Position above the Zoom In button */
+    bottom: 70px;
 }
 
 #zoomOut:hover {
@@ -151,30 +180,141 @@ h2 {
 #zoomIn:hover {
     background: #020ef7;
 }
-
-/* Input Fields (Dropdowns) */
-#start, #end {
-    font-size: 18px;  /* Increase text size */
-    padding: 10px;    /* Add padding for better appearance */
-    width: 200px;     /* Set width */
-    height: 40px;     /* Adjust height */
-    border-radius: 5px; /* Optional: Rounded corners */
+select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 18px;
+    outline: none;
+    transition: all 0.3s;
+    width: 220px;
+  }
+  * Dropdown and Route Button Section */
+.controls select, .controls button {
+    margin: 10px;
 }
 
 /* Mobile-Specific Adjustments */
 @media screen and (max-width: 768px) {
-    /* Move the info-table and GPS button to the left */
+    .route-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #start, #end {
+        font-size: 12px;
+        padding: 5px;
+        width: 120px;
+        height: 30px;
+    }
+
+    /* Move "Show Route" button below */
+    #showRoute {
+        margin-top: 5px;
+        width: 13px;
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    /* Adjust info-table and GPS button */
     .info-table {
-        left: 0px; /* Move table to the left side */
-        padding: 15px; /* Adjust padding for mobile */
-        font-size: 12px; /* Reduce font size */
+        left: 10px;
+        padding: 15px;
+        font-size: 13px;
     }
 
     #gpsLocator {
-        left: 0px; /* Move GPS button to the left side */
+        left: 10px;
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
     }
 
     #zoomIn, #zoomOut {
-        left: 0px; /* Move zoom buttons to the left side */
+        left: 10px;
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
     }
+
+    .controls select {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: rgb(255, 255, 255);
+        border: none;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+      }
+      select {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 18px;
+        outline: none;
+        transition: all 0.3s;
+        width: 220px;
+      }
+      * Dropdown and Route Button Section */
+.controls select, .controls button {
+    margin: 10px;
+}
+}
+#passengerSidebar {
+    position: absolute;
+    top: 80px;
+    left: 10px;
+    background: rgba(255,255,255,0.95);
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+#toggleSidebar {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+#passengerPanel {
+    display: none;
+    text-align: center;
+}
+
+.passenger-table {
+    width: 100%;
+    font-size: 24px;
+    margin-top: 10px;
+}
+
+.passenger-table button {
+    font-size: 30px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.confirm-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.confirm-btn:hover {
+    background-color: #218838;
 }
