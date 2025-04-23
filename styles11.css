@@ -1,102 +1,90 @@
-/* Apply a blurry background */
+/* Body Background with Glass Effect */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background: rgba(62, 74, 91, 0.69)  url('background.jpg') no-repeat center center fixed;
-    background-size: cover;
-    backdrop-filter: blur(8px);
+    background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
+    color: #f4f4f4;
     text-align: center;
-    color: rgb(0, 0, 0);
 }
 
-/* Heading Styles */
+/* Heading */
 h2 {
-    margin-top: 70px;
-    font-size: 50px;
-    font-weight: bold;
+    margin-top: 60px;
+    font-size: 48px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
 }
 
-/* Controls Section */
-.controls {
+/* Dropdown and Controls Container */
+.route-container, .controls {
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-/* Route Selection Container */
-.route-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-.location-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    margin-bottom: 15px;
-  }
-button {
-    background-color: #007bff;
-    color: rgb(255, 255, 255);
-    border: none;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-  }
-
-/* Dropdown Styling */
-#start, #end {
-    font-size: 14px;
-    padding: 6px;
-    width: 150px;
-    height: 35px;
-    border-radius: 5px;
-}
-
-/* Show Route Button */
-#showRoute {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-#showRoute:hover {
-    background-color: #a0abb7;
-}
-
-/* Map Styling */
-#map {
-    width: 100%;
-    height: 600px;
-    margin: 10px auto;
+/* Stylish Dropdowns */
+select {
+    padding: 12px 15px;
     border-radius: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 16px;
+    outline: none;
+    backdrop-filter: blur(6px);
+    transition: 0.3s ease;
 }
 
-/* Transparent Table Overlay */
+select:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* General Button Styling */
+button {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Map Container */
+#map {
+    width: 95%;
+    height: 600px;
+    margin: 30px auto;
+    border-radius: 15px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Info Table */
 .info-table {
     position: absolute;
-    top: 250px;
-    left: 35px;
-    background: rgba(6, 0, 6, 0.6);
-    padding: 25px;
+    top: 200px;
+    left: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     border-radius: 15px;
-    color: white;
+    padding: 20px;
+    color: #fff;
     font-size: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-/* Toast Notification Styling */
+/* Toasts */
 .toast-container {
     position: fixed;
     bottom: 20px;
@@ -105,214 +93,105 @@ button {
 }
 
 .toast {
-    background-color: rgba(132, 4, 4, 0.8);
-    color: white;
+    background-color: rgba(0, 0, 0, 0.6);
     padding: 15px 20px;
-    border-radius: 5px;
+    border-radius: 10px;
     margin-bottom: 10px;
+    color: #fff;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.4s ease;
 }
 
 .toast.show {
     opacity: 1;
 }
 
-.success { background-color: green; }
-.error { background-color: red; }
-.info { background-color: blue; }
+/* Toast Types */
+.success { background-color: #28a745; }
+.error { background-color: #dc3545; }
+.info { background-color: #17a2b8; }
 
-/* GPS Locator Button */
-#gpsLocator {
+/* GPS, Zoom Buttons */
+#gpsLocator, #zoomIn, #zoomOut {
     position: absolute;
-    bottom: 1px;
     left: 150px;
-    width: 40px;
-    height: 40px;
-    background: rgb(0, 0, 0);
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
+    border: none;
+    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0px 4px 6px rgb(219, 214, 214);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.2);
     cursor: pointer;
-    border: none;
-    font-size: 18px;
-    transition: background 0.3s ease;
     z-index: 1000;
 }
 
-#gpsLocator:hover {
-    background: #452fd4;
+#zoomIn { bottom: 130px; }
+#zoomOut { bottom: 70px; }
+#gpsLocator { bottom: 10px; }
+
+#zoomIn:hover, #zoomOut:hover, #gpsLocator:hover {
+    background: rgba(255, 255, 255, 0.35);
 }
 
-/* Zoom In & Zoom Out Buttons */
-#zoomIn, #zoomOut {
-    position: absolute;
-    left: 150px;
-    width: 45px;
-    height: 45px;
-    background: rgb(0, 0, 0);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0px 4px 6px rgb(71, 7, 18);
-    cursor: pointer;
-    border: none;
-    font-size: 18px;
-    transition: background 0.3s ease;
-    z-index: 1000;
-}
-
-#zoomIn {
-    bottom: 130px;
-}
-
-#zoomOut {
-    bottom: 70px;
-}
-
-#zoomOut:hover {
-    background: #ff0000;
-}
-
-#zoomIn:hover {
-    background: #020ef7;
-}
-select {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 18px;
-    outline: none;
-    transition: all 0.3s;
-    width: 220px;
-  }
-  * Dropdown and Route Button Section */
-.controls select, .controls button {
-    margin: 10px;
-}
-
-/* Mobile-Specific Adjustments */
-@media screen and (max-width: 768px) {
-    .route-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    #start, #end {
-        font-size: 12px;
-        padding: 5px;
-        width: 120px;
-        height: 30px;
-    }
-
-    /* Move "Show Route" button below */
-    #showRoute {
-        margin-top: 5px;
-        width: 13px;
-        font-size: 14px;
-        padding: 6px;
-    }
-
-    /* Adjust info-table and GPS button */
-    .info-table {
-        left: 10px;
-        padding: 15px;
-        font-size: 13px;
-    }
-
-    #gpsLocator {
-        left: 10px;
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
-    }
-
-    #zoomIn, #zoomOut {
-        left: 10px;
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
-    }
-
-    .controls select {
-        padding: 8px;
-        font-size: 12px;
-    }
-
-    button {
-        background-color: #007bff;
-        color: rgb(255, 255, 255);
-        border: none;
-        padding: 12px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.3s ease-in-out;
-      }
-      select {
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 18px;
-        outline: none;
-        transition: all 0.3s;
-        width: 220px;
-      }
-      * Dropdown and Route Button Section */
-.controls select, .controls button {
-    margin: 10px;
-}
-}
+/* Sidebar for Passenger Count */
 #passengerSidebar {
     position: absolute;
     top: 80px;
     left: 10px;
-    background: rgba(255,255,255,0.95);
-    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
     border-radius: 12px;
+    color: #fff;
+    backdrop-filter: blur(6px);
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    z-index: 1000;
 }
 
 #toggleSidebar {
-    width: 100%;
     padding: 10px;
     font-size: 16px;
     cursor: pointer;
+    width: 100%;
     margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #17a2b8;
+    color: #fff;
 }
 
 #passengerPanel {
     display: none;
-    text-align: center;
 }
 
 .passenger-table {
     width: 100%;
-    font-size: 24px;
+    font-size: 20px;
     margin-top: 10px;
+    color: white;
 }
 
 .passenger-table button {
-    font-size: 30px;
-    padding: 10px 20px;
-    cursor: pointer;
+    font-size: 26px;
+    padding: 10px 18px;
+    background: #ffc107;
+    border: none;
+    border-radius: 8px;
+    color: #000;
 }
 
 .confirm-btn {
     margin-top: 15px;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 16px;
     background-color: #28a745;
-    color: white;
-    border: none;
     border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+    color: white;
+    transition: 0.3s;
+    border: none;
 }
 
 .confirm-btn:hover {
