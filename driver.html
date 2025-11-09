@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,620 +11,66 @@
     <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-    <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css">
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-            animation: fadeInDown 0.6s ease;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .api-key-section {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
-
-        .api-key-section h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .api-key-section input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            margin-bottom: 10px;
-        }
-
-        .api-key-section input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-            animation: fadeIn 0.8s ease;
-        }
-
-        .sidebar {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            height: fit-content;
-        }
-
-        .control-section {
-            margin-bottom: 25px;
-        }
-
-        .control-section h3 {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #667eea;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .location-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f5f7fa;
-            color: #667eea;
-            border: 2px solid #e1e8ed;
-        }
-
-        .btn-secondary:hover {
-            background: #e1e8ed;
-            transform: translateY(-2px);
-        }
-
-        .btn-icon {
-            width: 44px;
-            height: 44px;
-            padding: 0;
-            border-radius: 50%;
-        }
-
-        .select-wrapper {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .select-wrapper label {
-            display: block;
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .map-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        #map {
-            width: 100%;
-            height: 600px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            background: #e5e7eb;
-        }
-
-        .info-table {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .info-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .info-table tr {
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .info-table tr:last-child {
-            border-bottom: none;
-        }
-
-        .info-table td {
-            padding: 12px 8px;
-            font-size: 0.95rem;
-        }
-
-        .info-table td:first-child {
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .info-table td:last-child {
-            text-align: right;
-            color: #1e293b;
-            font-weight: 600;
-        }
-
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .toast {
-            background: white;
-            padding: 16px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 300px;
-            animation: slideInRight 0.3s ease;
-        }
-
-        .toast.success {
-            border-left: 4px solid #10b981;
-        }
-
-        .toast.error {
-            border-left: 4px solid #ef4444;
-        }
-
-        .toast.info {
-            border-left: 4px solid #3b82f6;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
-
-        @media (max-width: 640px) {
-            body {
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .sidebar {
-                padding: 20px;
-            }
-
-            #map {
-                height: 400px;
-            }
-
-            .location-buttons {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚌 Driver Route Selection</h1>
-            <p>Plan your journey across Karnataka with real-time navigation</p>
-        </div>
 
-        <div class="api-key-section">
-            <h3>🔑 HERE Maps API Key</h3>
-            <input type="text" id="apiKey" placeholder="Enter your HERE Maps API Key">
-            <button id="initMap" class="btn btn-primary" style="width: 100%;">Initialize Map</button>
-            <p style="margin-top: 10px; font-size: 0.85rem; color: #64748b;">
-                Get your free API key from <a href="https://developer.here.com/" target="_blank" style="color: #667eea;">developer.here.com</a>
-            </p>
-        </div>
+<h2>Driver Route Selection</h2>
 
-        <div class="main-content">
-            <div class="sidebar">
-                <div class="control-section">
-                    <h3>📍 Location Services</h3>
-                    <div class="location-buttons">
-                        <button id="enableLocation" class="btn btn-primary">Enable GPS</button>
-                        <button id="disableLocation" class="btn btn-secondary">Disable GPS</button>
-                    </div>
-                </div>
+<div class="controls">
+    <button id="enableLocation">Enable Location</button>
+    <button id="disableLocation">Disable Location</button>
+   
+</div>
 
-                <div class="control-section">
-                    <h3>🗺️ Route Planning</h3>
-                    <div class="select-wrapper">
-                        <label for="startPoint">Starting Point</label>
-                        <select id="startPoint">
-                            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-                            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-                            <option value="13.3409,74.7421">🚌 Udupi</option>
-                            <option value="14.4530,75.9215">🚌 Shivamogga</option>
-                            <option value="15.3647,75.1239">🚌 Hubli</option>
-                            <option value="15.8497,74.4977">🚌 Belagavi</option>
-                            <option value="12.2958,76.6394">🚌 Mysuru</option>
-                        </select>
-                    </div>
+<div class="controls">
+    <label for="startPoint">Route</label>
+    <select id="startPoint">
+        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+        <option value="13.3409,74.7421">🚌 Udupi</option>
+        <option value="14.4530,75.9215">🚌 Shivamogga</option>
+        <option value="15.3647,75.1239">🚌 Hubli</option>
+        <option value="15.8497,74.4977">🚌 Belagavi</option>
+        <option value="12.2958,76.6394">🚌 Mysuru</option>
+    </select>
+    
+    <label for="endPoint"></label>
+    <select id="endPoint">
+        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+        <option value="13.3409,74.7421">🚌 Udupi</option>
+        <option value="14.4530,75.9215">🚌 Shivamogga</option>
+        <option value="15.3647,75.1239">🚌 Hubli</option>
+        <option value="15.8497,74.4977">🚌 Belagavi</option>
+        <option value="12.2958,76.6394">🚌 Mysuru</option>
+    </select>
+    <button id="routeBtn">Show Route</button>
+    <button id="gpsLocator">⬤</button> 
+    <button id="zoomIn">+</button>
+<button id="zoomOut">−</button>
 
-                    <div class="select-wrapper">
-                        <label for="endPoint">Destination</label>
-                        <select id="endPoint">
-                            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-                            <option value="12.9716,77.5946" selected>🚌 Majestic, Bengaluru</option>
-                            <option value="13.3409,74.7421">🚌 Udupi</option>
-                            <option value="14.4530,75.9215">🚌 Shivamogga</option>
-                            <option value="15.3647,75.1239">🚌 Hubli</option>
-                            <option value="15.8497,74.4977">🚌 Belagavi</option>
-                            <option value="12.2958,76.6394">🚌 Mysuru</option>
-                        </select>
-                    </div>
 
-                    <button id="routeBtn" class="btn btn-primary" style="width: 100%;">
-                        Show Route
-                    </button>
-                </div>
+    
+</div>
 
-                <div class="control-section">
-                    <h3>🎮 Map Controls</h3>
-                    <div class="map-controls">
-                        <button id="gpsLocator" class="btn btn-primary btn-icon" title="My Location">📍</button>
-                        <button id="zoomIn" class="btn btn-secondary btn-icon" title="Zoom In">+</button>
-                        <button id="zoomOut" class="btn btn-secondary btn-icon" title="Zoom Out">−</button>
-                    </div>
-                </div>
+<!-- Map -->
+<div id="map"></div>
 
-                <div class="info-table">
-                    <table>
-                        <tr>
-                            <td>⏳ Current Time</td>
-                            <td id="currentTime">--:--:--</td>
-                        </tr>
-                        <tr>
-                            <td>📍 Distance</td>
-                            <td id="distance">-- km</td>
-                        </tr>
-                        <tr>
-                            <td>🚗 Est. Time</td>
-                            <td id="estimatedTime">-- min</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+<!-- Transparent Table Overlay -->
+<div class="info-table">
+    <table>
+        <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
+        <tr><td>📍 Distance to Destination:</td><td id="distance">-- km</td></tr>
+        <tr><td>🚗 Approximate Time:</td><td id="estimatedTime">-- min</td></tr>
+    </table>
+</div>
 
-            <div>
-                <div id="map"></div>
-            </div>
-        </div>
-    </div>
+<!-- Toast Notification Container -->
+<div id="toastContainer" class="toast-container"></div>
 
-    <div id="toastContainer" class="toast-container"></div>
+<script type="module" src="script.js"></script>
 
-    <script>
-        let map, platform, ui, behavior;
-        let locationEnabled = false;
-        let currentPositionMarker = null;
-        let routeGroup = null;
-
-        // Toast notification function
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.animation = 'slideInRight 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Update current time
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = 
-                now.toLocaleTimeString('en-US', { hour12: false });
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        // Initialize map
-        document.getElementById('initMap').addEventListener('click', () => {
-            const apiKey = document.getElementById('apiKey').value.trim();
-            
-            if (!apiKey) {
-                showToast('Please enter your HERE Maps API Key', 'error');
-                return;
-            }
-
-            try {
-                platform = new H.service.Platform({ apikey: apiKey });
-                const defaultLayers = platform.createDefaultLayers();
-
-                map = new H.Map(
-                    document.getElementById('map'),
-                    defaultLayers.vector.normal.map,
-                    {
-                        center: { lat: 13.0827, lng: 80.2707 },
-                        zoom: 7,
-                        pixelRatio: window.devicePixelRatio || 1
-                    }
-                );
-
-                window.addEventListener('resize', () => map.getViewPort().resize());
-
-                behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-                ui = H.ui.UI.createDefault(map, defaultLayers);
-
-                showToast('Map initialized successfully!', 'success');
-                document.querySelector('.api-key-section').style.display = 'none';
-            } catch (error) {
-                showToast('Failed to initialize map. Check your API key.', 'error');
-                console.error(error);
-            }
-        });
-
-        // Enable location
-        document.getElementById('enableLocation').addEventListener('click', () => {
-            if (!map) {
-                showToast('Please initialize the map first', 'error');
-                return;
-            }
-
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        
-                        if (currentPositionMarker) {
-                            map.removeObject(currentPositionMarker);
-                        }
-
-                        const icon = new H.map.Icon(
-                            '<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#667eea" stroke="white" stroke-width="2"/></svg>',
-                            { size: { w: 24, h: 24 } }
-                        );
-
-                        currentPositionMarker = new H.map.Marker(
-                            { lat: latitude, lng: longitude },
-                            { icon: icon }
-                        );
-
-                        map.addObject(currentPositionMarker);
-                        map.setCenter({ lat: latitude, lng: longitude });
-                        
-                        locationEnabled = true;
-                        showToast('Location tracking enabled', 'success');
-                    },
-                    (error) => {
-                        showToast('Unable to get location', 'error');
-                    }
-                );
-            } else {
-                showToast('Geolocation not supported', 'error');
-            }
-        });
-
-        // Disable location
-        document.getElementById('disableLocation').addEventListener('click', () => {
-            if (currentPositionMarker && map) {
-                map.removeObject(currentPositionMarker);
-                currentPositionMarker = null;
-            }
-            locationEnabled = false;
-            showToast('Location tracking disabled', 'info');
-        });
-
-        // Show route
-        document.getElementById('routeBtn').addEventListener('click', () => {
-            if (!map) {
-                showToast('Please initialize the map first', 'error');
-                return;
-            }
-
-            const start = document.getElementById('startPoint').value.split(',');
-            const end = document.getElementById('endPoint').value.split(',');
-
-            const router = platform.getRoutingService(null, 8);
-            const routeParams = {
-                routingMode: 'fast',
-                transportMode: 'car',
-                origin: `${start[0]},${start[1]}`,
-                destination: `${end[0]},${end[1]}`,
-                return: 'polyline,summary'
-            };
-
-            if (routeGroup) {
-                map.removeObject(routeGroup);
-            }
-
-            router.calculateRoute(routeParams, (result) => {
-                if (result.routes.length) {
-                    const route = result.routes[0];
-                    const linestring = H.geo.LineString.fromFlexiblePolyline(route.sections[0].polyline);
-                    const routeLine = new H.map.Polyline(linestring, {
-                        style: { strokeColor: '#667eea', lineWidth: 5 }
-                    });
-
-                    const startMarker = new H.map.Marker({ lat: start[0], lng: start[1] });
-                    const endMarker = new H.map.Marker({ lat: end[0], lng: end[1] });
-
-                    routeGroup = new H.map.Group();
-                    routeGroup.addObjects([routeLine, startMarker, endMarker]);
-                    map.addObject(routeGroup);
-                    map.getViewModel().setLookAtData({ bounds: routeGroup.getBoundingBox() });
-
-                    const distance = (route.sections[0].summary.length / 1000).toFixed(2);
-                    const duration = Math.round(route.sections[0].summary.duration / 60);
-
-                    document.getElementById('distance').textContent = `${distance} km`;
-                    document.getElementById('estimatedTime').textContent = `${duration} min`;
-
-                    showToast('Route calculated successfully!', 'success');
-                }
-            }, (error) => {
-                showToast('Failed to calculate route', 'error');
-                console.error(error);
-            });
-        });
-
-        // GPS Locator
-        document.getElementById('gpsLocator').addEventListener('click', () => {
-            if (!map) {
-                showToast('Please initialize the map first', 'error');
-                return;
-            }
-            if (currentPositionMarker) {
-                map.setCenter(currentPositionMarker.getGeometry());
-                map.setZoom(14);
-            } else {
-                showToast('Enable location first', 'info');
-            }
-        });
-
-        // Zoom controls
-        document.getElementById('zoomIn').addEventListener('click', () => {
-            if (map) map.setZoom(map.getZoom() + 1);
-        });
-
-        document.getElementById('zoomOut').addEventListener('click', () => {
-            if (map) map.setZoom(map.getZoom() - 1);
-        });
-    </script>
 </body>
 </html>
