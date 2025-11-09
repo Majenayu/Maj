@@ -1,18 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiKey = "mzDLjmDOdq62sKIc4y81FgMv8pqj2ndZWPBraNyCm2w";
+    const apiKey = "YOUR_NEW_API_KEY_HERE";  // ⚠️ REPLACE WITH VALID KEY FROM developer.here.com
     let platform = new H.service.Platform({ 'apikey': apiKey });
     let defaultLayers = platform.createDefaultLayers();
+    // Optional: Switch to raster to avoid vector tile errors: defaultLayers.raster.normal.map
     let map = new H.Map(document.getElementById('map'), defaultLayers.vector.normal.map, {
         zoom: 7,
         center: { lat: 14.5, lng: 75.5 }
     });
     let behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
     let ui = H.ui.UI.createDefault(map, defaultLayers);
-    let router = platform.getRoutingService(null, 'en-US');
+    let router = platform.getRoutingService(null, 8);  // Explicit v8 for routing
     let blueRoute, yellowRoute, userLocationMarker;
     let userLocation = null;
     let trackingWatcher = null;
-   
    
     function showToast(message, type) {
         const toastContainer = document.getElementById("toastContainer");
@@ -23,10 +23,19 @@ document.addEventListener("DOMContentLoaded", function () {
         toastContainer.appendChild(toast);
         setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5000);
     }
+
+    // Test API key on load (optional)
+    fetch(`https://router.hereapi.com/v8/routes?transportMode=car&origin=12.9172,74.8560&destination=12.9716,77.5946&return=summary`, {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+    }).catch(err => {
+        if (err.message.includes('403')) showToast("❌ Invalid API key—get a new one from developer.here.com", "error");
+    });
+
     function removePreviousRoute(route) {
         if (route) map.removeObject(route);
         return null;
     }
+
     function updateUserLocation(position) {
         userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
         if (userLocationMarker) map.removeObject(userLocationMarker);
@@ -38,11 +47,13 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("distance").innerText = distance.toFixed(2) + " km";
         document.getElementById("estimatedTime").innerText = Math.round(duration) + " min";
     }
+
     function updateTime() {
         let now = new Date();
         document.getElementById("currentTime").innerText = now.toLocaleTimeString();
     }
     setInterval(updateTime, 1000);
+
     document.getElementById("enableLocation").addEventListener("click", function () {
         if (!navigator.geolocation) {
             showToast("❌ Geolocation not supported.", "error");
@@ -73,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         blueRoute = removePreviousRoute(blueRoute);
         showToast("❌ Location disabled!", "error");
     });
+
     function calculateRoute(start, end, color, updateTableInfo = false) {
         let routingParams = {
             'transportMode': 'car',
@@ -106,7 +118,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 let summary = result.routes[0].sections[0].summary;
                 updateTable(summary.length / 1000, summary.duration / 60);
             }
-        }, () => showToast("❌ Failed to generate route.", "error"));
+        }, (error) => {
+            console.error("Routing error:", error);
+            if (error.details && error.details.includes("403")) {
+                showToast("❌ Routing failed: Invalid API key or quota exceeded. Get a new key.", "error");
+            } else {
+                showToast("❌ Failed to generate route.", "error");
+            }
+        });
     }
    
     function sendDriverLocationToServer(lat, lng) {
@@ -125,13 +144,13 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(response => response.json())
         .then(data => {
-            showToast("✅ Driver location updated!", "success");
+            // Silent success—no toast spam
         })
         .catch(error => {
             console.error("Error sending location:", error);
-            showToast("❌ Failed to update driver location.", "error");
         });
     }
+
     function updateUserRoute() {
         if (!userLocation) {
             showToast("❌ Cannot find user location.", "error");
@@ -139,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         let end = document.getElementById("endPoint").value.split(",").map(Number);
         let userStart = [userLocation.lat, userLocation.lng];
-        calculateRoute(userStart, end, 'blue');
+        calculateRoute(userStart, end, 'blue', true);
     }
    
     document.getElementById("routeBtn").addEventListener("click", function () {
@@ -147,33 +166,31 @@ document.addEventListener("DOMContentLoaded", function () {
         let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
         if (userLocation) {
             updateUserRoute();
+        } else {
+            calculateRoute(startCoords, endCoords, 'yellow', true);
         }
-        calculateRoute(startCoords, endCoords, 'yellow', true);
     });
    
     let idleTimer = null;
     function zoomToUserLocation() {
         if (userLocation) {
             map.setCenter(userLocation);
-            map.setZoom(15); // Adjust zoom level as needed
+            map.setZoom(15);
         } else {
             showToast("❌ Location not available.", "error");
         }
     }
    
-    // Reset idle timer on user interaction
     function resetIdleTimer() {
         clearTimeout(idleTimer);
-        idleTimer = setTimeout(zoomToUserLocation, 10000); // Auto-zoom after 10 sec of inactivity
+        idleTimer = setTimeout(zoomToUserLocation, 10000);
     }
    
-    // Detect user activity
     map.addEventListener("pointerdown", resetIdleTimer);
     map.addEventListener("wheel", resetIdleTimer);
     map.addEventListener("touchstart", resetIdleTimer);
     map.addEventListener("dragstart", resetIdleTimer);
    
-    // Manual button click
     document.getElementById("gpsLocator").addEventListener("click", zoomToUserLocation);
    
     document.getElementById("zoomIn").addEventListener("click", function () {
@@ -185,6 +202,4 @@ document.addEventListener("DOMContentLoaded", function () {
         let currentZoom = map.getZoom();
         map.setZoom(currentZoom - 1);
     });
-   
-   
 });
