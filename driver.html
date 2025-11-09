@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,66 +9,469 @@
     <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css">
     
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+        }
+
+        .header p {
+            font-size: 1.15rem;
+            opacity: 0.8;
+            color: #cbd5e1;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+        }
+
+        .control-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .control-section h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #60a5fa;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .location-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            border-radius: 12px;
+        }
+
+        .select-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .select-wrapper label {
+            display: block;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 14px;
+            font-size: 0.95rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2360a5fa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+        }
+
+        select option {
+            background: #1e293b;
+            color: white;
+            padding: 12px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(15, 23, 42, 0.7);
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
+        }
+
+        .map-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        #map {
+            width: 100%;
+            height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-table {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .info-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .info-table td {
+            padding: 14px 10px;
+            font-size: 0.95rem;
+        }
+
+        .info-table td:first-child {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .info-table td:last-child {
+            text-align: right;
+            color: #e2e8f0;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 18px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 320px;
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast.info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .sidebar {
+                padding: 20px;
+            }
+
+            #map {
+                height: 400px;
+            }
+
+            .location-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🚌 Driver Route Selection</h1>
+            <p>Plan your journey across Karnataka with real-time navigation</p>
+        </div>
 
-<h2>Driver Route Selection</h2>
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="control-section">
+                    <h3>📍 Location Services</h3>
+                    <div class="location-buttons">
+                        <button id="enableLocation" class="btn btn-primary">Enable GPS</button>
+                        <button id="disableLocation" class="btn btn-secondary">Disable GPS</button>
+                    </div>
+                </div>
 
-<div class="controls">
-    <button id="enableLocation">Enable Location</button>
-    <button id="disableLocation">Disable Location</button>
-   
-</div>
+                <div class="control-section">
+                    <h3>🗺️ Route Planning</h3>
+                    <div class="select-wrapper">
+                        <label for="startPoint">Starting Point</label>
+                        <select id="startPoint">
+                            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+                            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+                            <option value="13.3409,74.7421">🚌 Udupi</option>
+                            <option value="14.4530,75.9215">🚌 Shivamogga</option>
+                            <option value="15.3647,75.1239">🚌 Hubli</option>
+                            <option value="15.8497,74.4977">🚌 Belagavi</option>
+                            <option value="12.2958,76.6394">🚌 Mysuru</option>
+                        </select>
+                    </div>
 
-<div class="controls">
-    <label for="startPoint">Route</label>
-    <select id="startPoint">
-        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-        <option value="13.3409,74.7421">🚌 Udupi</option>
-        <option value="14.4530,75.9215">🚌 Shivamogga</option>
-        <option value="15.3647,75.1239">🚌 Hubli</option>
-        <option value="15.8497,74.4977">🚌 Belagavi</option>
-        <option value="12.2958,76.6394">🚌 Mysuru</option>
-    </select>
-    
-    <label for="endPoint"></label>
-    <select id="endPoint">
-        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-        <option value="13.3409,74.7421">🚌 Udupi</option>
-        <option value="14.4530,75.9215">🚌 Shivamogga</option>
-        <option value="15.3647,75.1239">🚌 Hubli</option>
-        <option value="15.8497,74.4977">🚌 Belagavi</option>
-        <option value="12.2958,76.6394">🚌 Mysuru</option>
-    </select>
-    <button id="routeBtn">Show Route</button>
-    <button id="gpsLocator">⬤</button> 
-    <button id="zoomIn">+</button>
-<button id="zoomOut">−</button>
+                    <div class="select-wrapper">
+                        <label for="endPoint">Destination</label>
+                        <select id="endPoint">
+                            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+                            <option value="12.9716,77.5946" selected>🚌 Majestic, Bengaluru</option>
+                            <option value="13.3409,74.7421">🚌 Udupi</option>
+                            <option value="14.4530,75.9215">🚌 Shivamogga</option>
+                            <option value="15.3647,75.1239">🚌 Hubli</option>
+                            <option value="15.8497,74.4977">🚌 Belagavi</option>
+                            <option value="12.2958,76.6394">🚌 Mysuru</option>
+                        </select>
+                    </div>
 
+                    <button id="routeBtn" class="btn btn-primary" style="width: 100%;">
+                        Show Route
+                    </button>
+                </div>
 
-    
-</div>
+                <div class="control-section">
+                    <h3>🎮 Map Controls</h3>
+                    <div class="map-controls">
+                        <button id="gpsLocator" class="btn btn-primary btn-icon" title="My Location">📍</button>
+                        <button id="zoomIn" class="btn btn-secondary btn-icon" title="Zoom In">+</button>
+                        <button id="zoomOut" class="btn btn-secondary btn-icon" title="Zoom Out">−</button>
+                    </div>
+                </div>
 
-<!-- Map -->
-<div id="map"></div>
+                <div class="info-table">
+                    <table>
+                        <tr>
+                            <td>⏳ Current Time</td>
+                            <td id="currentTime">--:--:--</td>
+                        </tr>
+                        <tr>
+                            <td>📍 Distance</td>
+                            <td id="distance">-- km</td>
+                        </tr>
+                        <tr>
+                            <td>🚗 Est. Time</td>
+                            <td id="estimatedTime">-- min</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
 
-<!-- Transparent Table Overlay -->
-<div class="info-table">
-    <table>
-        <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
-        <tr><td>📍 Distance to Destination:</td><td id="distance">-- km</td></tr>
-        <tr><td>🚗 Approximate Time:</td><td id="estimatedTime">-- min</td></tr>
-    </table>
-</div>
+            <div>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
 
-<!-- Toast Notification Container -->
-<div id="toastContainer" class="toast-container"></div>
+    <div id="toastContainer" class="toast-container"></div>
 
-<script type="module" src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
