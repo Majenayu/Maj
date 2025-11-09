@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiKey = "YOUR_NEW_API_KEY_HERE";  // ⚠️ REPLACE WITH VALID KEY FROM developer.here.com
+    const apiKey = "mzDLjmDOdq62sKIc4y81FgMv8pqj2ndZWPBraNyCm2w"; // ⚠️ REPLACE WITH VALID KEY FROM developer.here.com
     let platform = new H.service.Platform({ 'apikey': apiKey });
     let defaultLayers = platform.createDefaultLayers();
     // Optional: Switch to raster to avoid vector tile errors: defaultLayers.raster.normal.map
@@ -203,3 +203,4 @@ document.addEventListener("DOMContentLoaded", function () {
         map.setZoom(currentZoom - 1);
     });
 });
+
