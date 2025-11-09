@@ -19,7 +19,7 @@ app.use("/script11.js", express.static(path.join(__dirname, "script11.js")));
 app.use("/script12.js", express.static(path.join(__dirname, "script12.js")));
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://ayu:ayu@ayu.cawv7.mongodb.net/yourDatabaseName?retryWrites=true&w=majority&appName=ayu")
+mongoose.connect("mongodb+srv://ayu:ayu@ayu.cawv7.mongodb.net/?appName=ayu")
     .then(() => console.log("✅ Connected to MongoDB"))
     .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
@@ -192,3 +192,4 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
