@@ -1,16 +1,17 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Route Selection</title>
-    
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-    <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css">
-    
+
+    <!-- ✅ Leaflet Map Library (Free) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- ✅ Routing (Optional, Free) -->
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
     <style>
         * {
             margin: 0;
@@ -385,8 +386,7 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
-</head>
+    </style></head>
 <body>
     <div class="container">
         <div class="header">
@@ -448,18 +448,9 @@
 
                 <div class="info-table">
                     <table>
-                        <tr>
-                            <td>⏳ Current Time</td>
-                            <td id="currentTime">--:--:--</td>
-                        </tr>
-                        <tr>
-                            <td>📍 Distance</td>
-                            <td id="distance">-- km</td>
-                        </tr>
-                        <tr>
-                            <td>🚗 Est. Time</td>
-                            <td id="estimatedTime">-- min</td>
-                        </tr>
+                        <tr><td>⏳ Current Time</td><td id="currentTime">--:--:--</td></tr>
+                        <tr><td>📍 Distance</td><td id="distance">-- km</td></tr>
+                        <tr><td>🚗 Est. Time</td><td id="estimatedTime">-- min</td></tr>
                     </table>
                 </div>
             </div>
@@ -472,6 +463,92 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
-    <script src="script.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const apiKey = "722df4584b57104bba14c7cd877490ce"; // ipstack key
+        let map = L.map('map').setView([12.9716, 77.5946], 7); // default center Karnataka
+
+        // Base map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        let userMarker = null;
+        let routeControl = null;
+        let trackingWatcher = null;
+
+        function showToast(message, type = "info") {
+            const toastContainer = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type} show`;
+            toast.innerText = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function updateTime() {
+            document.getElementById("currentTime").innerText = new Date().toLocaleTimeString();
+        }
+        setInterval(updateTime, 1000);
+
+        // Enable GPS
+        document.getElementById("enableLocation").addEventListener("click", async () => {
+            try {
+                // Use ipstack for approximate location
+                const res = await fetch(`https://api.ipstack.com/check?access_key=${apiKey}`);
+                const data = await res.json();
+                if (data && data.latitude && data.longitude) {
+                    const lat = data.latitude;
+                    const lng = data.longitude;
+                    if (userMarker) userMarker.remove();
+                    userMarker = L.marker([lat, lng]).addTo(map).bindPopup("Your Location").openPopup();
+                    map.setView([lat, lng], 12);
+                    showToast("✅ Location detected via IP", "success");
+                } else {
+                    showToast("❌ Unable to detect IP location", "error");
+                }
+            } catch (err) {
+                showToast("❌ Failed to fetch location", "error");
+            }
+        });
+
+        // Disable GPS
+        document.getElementById("disableLocation").addEventListener("click", () => {
+            if (userMarker) {
+                userMarker.remove();
+                userMarker = null;
+            }
+            if (routeControl) {
+                map.removeControl(routeControl);
+                routeControl = null;
+            }
+            showToast("❌ Location disabled", "error");
+        });
+
+        // Show route between selected points
+        document.getElementById("routeBtn").addEventListener("click", () => {
+            const start = document.getElementById("startPoint").value.split(",").map(Number);
+            const end = document.getElementById("endPoint").value.split(",").map(Number);
+
+            if (routeControl) map.removeControl(routeControl);
+            routeControl = L.Routing.control({
+                waypoints: [L.latLng(start[0], start[1]), L.latLng(end[0], end[1])],
+                lineOptions: { styles: [{ color: 'blue', weight: 5 }] },
+                createMarker: () => null
+            }).addTo(map);
+
+            showToast("📍 Route displayed!", "success");
+        });
+
+        // Map controls
+        document.getElementById("zoomIn").addEventListener("click", () => map.zoomIn());
+        document.getElementById("zoomOut").addEventListener("click", () => map.zoomOut());
+        document.getElementById("gpsLocator").addEventListener("click", () => {
+            if (userMarker) map.setView(userMarker.getLatLng(), 14);
+            else showToast("❌ Enable GPS first", "error");
+        });
+    });
+    </script>
 </body>
 </html>
