@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiKey = "mzDLjmDOdq62sKIc4y81FgMv8pqj2ndZWPBraNyCm2w"; // ⚠️ REPLACE WITH VALID KEY FROM developer.here.com
+    const apiKey = "722df4584b57104bba14c7cd877490ce"; // ✅ Your new HERE API key
     let platform = new H.service.Platform({ 'apikey': apiKey });
     let defaultLayers = platform.createDefaultLayers();
     // Optional: Switch to raster to avoid vector tile errors: defaultLayers.raster.normal.map
@@ -24,12 +24,14 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5000);
     }
 
-    // Test API key on load (optional)
-    fetch(`https://router.hereapi.com/v8/routes?transportMode=car&origin=12.9172,74.8560&destination=12.9716,77.5946&return=summary`, {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
-    }).catch(err => {
-        if (err.message.includes('403')) showToast("❌ Invalid API key—get a new one from developer.here.com", "error");
-    });
+    // ✅ Test API key on load (optional)
+    fetch(`https://router.hereapi.com/v8/routes?transportMode=car&origin=12.9172,74.8560&destination=12.9716,77.5946&return=summary&apiKey=${apiKey}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        })
+        .catch(err => {
+            if (err.message.includes('403')) showToast("❌ Invalid API key—get a new one from developer.here.com", "error");
+        });
 
     function removePreviousRoute(route) {
         if (route) map.removeObject(route);
@@ -143,9 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
         })
         .then(response => response.json())
-        .then(data => {
-            // Silent success—no toast spam
-        })
         .catch(error => {
             console.error("Error sending location:", error);
         });
@@ -203,4 +202,3 @@ document.addEventListener("DOMContentLoaded", function () {
         map.setZoom(currentZoom - 1);
     });
 });
-
