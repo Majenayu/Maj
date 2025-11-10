@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   const apiKey = "9b291c7a36e74c10b90750ce059f48b2";
-
   // Initialize map
   const map = L.map("map").setView([14.5, 75.5], 7);
   L.tileLayer(
@@ -83,3 +82,4 @@ document.addEventListener("DOMContentLoaded", function () {
     else showToast("Location not available");
   });
 });
+
