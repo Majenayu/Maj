@@ -1,92 +1,130 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Route Tracking</title>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
-    <link rel="stylesheet" href="styles1.css">
-</head>
-<body>
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Route Tracking</title>
+  <link rel="stylesheet" href="styles1.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 90vh;
+      width: 100%;
+    }
+    .route-container, .controls {
+      text-align: center;
+      margin: 10px;
+    }
+    .controls button {
+      padding: 6px 10px;
+      margin: 2px;
+      font-size: 16px;
+    }
+    .info-table {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
     .top-left-link {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #007BFF;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-family: Arial, sans-serif;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
     }
-
     .top-left-link:hover {
-        background-color: #0056b3;
+      background-color: #0056b3;
     }
-</style>
-<h2>User Route Selection</h2>
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 
-<!-- Dropdowns for Start and End Locations -->
-<div class="route-container">
+  <!-- Leaflet (used with Geoapify) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+  <h2 style="text-align:center;">User Route Selection</h2>
+
+  <div class="route-container">
     <label for="start">Start: </label>
     <select id="start">
-        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-        <option value="13.3409,74.7421">🚌 Udupi</option>
-        <option value="14.4530,75.9215">🚌 Shivamogga</option>
-        <option value="15.3647,75.1239">🚌 Hubli</option>
-        <option value="15.8497,74.4977">🚌 Belagavi</option>
-        <option value="12.2958,76.6394">🚌 Mysuru</option>
+      <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+      <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+      <option value="13.3409,74.7421">🚌 Udupi</option>
+      <option value="14.4530,75.9215">🚌 Shivamogga</option>
+      <option value="15.3647,75.1239">🚌 Hubli</option>
+      <option value="15.8497,74.4977">🚌 Belagavi</option>
+      <option value="12.2958,76.6394">🚌 Mysuru</option>
     </select>
 
     <label for="end">End: </label>
     <select id="end">
-        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-        <option value="13.3409,74.7421">🚌 Udupi</option>
-        <option value="14.4530,75.9215">🚌 Shivamogga</option>
-        <option value="15.3647,75.1239">🚌 Hubli</option>
-        <option value="15.8497,74.4977">🚌 Belagavi</option>
-        <option value="12.2958,76.6394">🚌 Mysuru</option>
+      <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+      <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+      <option value="13.3409,74.7421">🚌 Udupi</option>
+      <option value="14.4530,75.9215">🚌 Shivamogga</option>
+      <option value="15.3647,75.1239">🚌 Hubli</option>
+      <option value="15.8497,74.4977">🚌 Belagavi</option>
+      <option value="12.2958,76.6394">🚌 Mysuru</option>
     </select>
-</div>
+  </div>
 
-<!-- Action Buttons -->
-<div class="controls">
+  <div class="controls">
     <button id="checkDriver">Find Driver</button>
     <button id="selectFromMap">Select from Map</button>
-    <button id="gpsLocator">⬤</button> 
+    <button id="gpsLocator">⬤</button>
     <button id="zoomIn">+</button>
     <button id="zoomOut">−</button>
-</div>
+  </div>
 
-<!-- Map Container -->
-<div id="map"></div>
-<!-- Redirect Button using <a> tag -->
-  <a href="user2.html" class="top-left-link">
-       Find Auto
-    </a>
+  <div id="map"></div>
 
-<!-- Transparent Table for Live Tracking -->
-<div class="info-table">
+  <a href="user2.html" class="top-left-link">Find Auto</a>
+
+  <div class="info-table">
     <table>
-        <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
-        <tr><td>📍 Distance to Driver:</td><td id="distanceToDriver">-- km</td></tr>
-        <tr><td>🚗 Estimated Time of Arrival (ETA):</td><td id="ETA">-- min</td></tr>
+      <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
+      <tr><td>📍 Distance to Driver:</td><td id="distanceToDriver">-- km</td></tr>
+      <tr><td>🚗 ETA:</td><td id="ETA">-- min</td></tr>
     </table>
-</div>
+  </div>
 
-<!-- Toast Notification Container -->
-<div id="toastContainer" class="toast-container"></div>
+  <div id="toastContainer" class="toast-container"></div>
 
-
-<script type="module" src="script1.js"></script>
-
+  <script type="module" src="script1.js"></script>
 </body>
 </html>
