@@ -1,194 +1,111 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const apiKey = "mzDLjmDOdq62sKIc4y81FgMv8pqj2ndZWPBraNyCm2w";
-    let platform = new H.service.Platform({ 'apikey': apiKey });
-    let defaultLayers = platform.createDefaultLayers();
-    let map = new H.Map(document.getElementById('map'), defaultLayers.vector.normal.map, {
-        zoom: 7,
-        center: { lat: 14.5, lng: 75.5 }
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  const apiKey = "9b291c7a36e74c10b90750ce059f48b2"; // Geoapify API Key
 
-    let behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-    let ui = H.ui.UI.createDefault(map, defaultLayers);
+  const map = L.map("map").setView([14.5, 75.5], 7);
+  L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${apiKey}`, {
+    attribution: '© OpenStreetMap contributors, © Geoapify',
+  }).addTo(map);
 
-    let driverMarker, selectedMarker, routeLine;
-    let driverLocation = null;
-    let selectedLocation = null;
+  let driverMarker, selectedMarker, routeLine;
+  let driverLocation = null;
+  let selectedLocation = null;
 
-    async function fetchDriverLocation(startCoords, endCoords) {
-        try {
-            let response = await fetch(`https://maj-65qm.onrender.com/get-driver-location?start=${JSON.stringify(startCoords)}&end=${JSON.stringify(endCoords)}`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-            let data = await response.json();
-            if (data && data.driverLocation) {
-                driverLocation = data.driverLocation;
-                console.log("Driver location fetched:", driverLocation);
-                updateDriverLocation(driverLocation.lat, driverLocation.lng);
-                return true;
-            } else {
-                console.log("No active driver found.");
-                return false;
-            }
-        } catch (error) {
-            alert("Error connecting to the server. Please try again.");
-            console.error("Error fetching driver location:", error);
-            return false;
-        }
+  // Fetch driver location (same logic as before)
+  async function fetchDriverLocation(startCoords, endCoords) {
+    try {
+      let response = await fetch(`https://maj-65qm.onrender.com/get-driver-location?start=${JSON.stringify(startCoords)}&end=${JSON.stringify(endCoords)}`);
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      let data = await response.json();
+      if (data && data.driverLocation) {
+        driverLocation = data.driverLocation;
+        updateDriverLocation(driverLocation.lat, driverLocation.lng);
+        return true;
+      } else {
+        showToast("No active driver found", "info");
+        return false;
+      }
+    } catch (error) {
+      alert("Error connecting to server.");
+      console.error(error);
+      return false;
     }
+  }
 
-    function updateDriverLocation(lat, lng) {
-        if (driverMarker) map.removeObject(driverMarker);
-        driverMarker = new H.map.Marker({ lat, lng });
-        map.addObject(driverMarker);
+  function updateDriverLocation(lat, lng) {
+    if (driverMarker) map.removeLayer(driverMarker);
+    driverMarker = L.marker([lat, lng]).addTo(map).bindPopup("Driver Location");
+  }
+
+  // Calculate route using Geoapify Routing API
+  async function calculateRoute(start, end) {
+    const url = `https://api.geoapify.com/v1/routing?waypoints=${start.lat},${start.lng}|${end.lat},${end.lng}&mode=drive&apiKey=${apiKey}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.features || data.features.length === 0) {
+        alert("No route found!");
+        return;
+      }
+
+      const coords = data.features[0].geometry.coordinates[0].map(c => [c[1], c[0]]);
+
+      if (routeLine) map.removeLayer(routeLine);
+      routeLine = L.polyline(coords, { color: "blue", weight: 4 }).addTo(map);
+      map.fitBounds(routeLine.getBounds());
+
+      const summary = data.features[0].properties;
+      document.getElementById("distanceToDriver").innerText = `${(summary.distance / 1000).toFixed(2)} km`;
+      document.getElementById("ETA").innerText = `${Math.ceil(summary.time / 60)} min`;
+    } catch (error) {
+      console.error("Routing error:", error);
     }
+  }
 
-    function calculateRoute(start, end) {
-        if (!start || !end) {
-            showToast("Error: Missing driver location or destination!", "error");
-            return;
-        }
+  // Select location on map
+  map.on("click", (e) => {
+    selectedLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+    if (selectedMarker) map.removeLayer(selectedMarker);
+    selectedMarker = L.marker([selectedLocation.lat, selectedLocation.lng]).addTo(map);
+    alert(`Location Selected: ${selectedLocation.lat}, ${selectedLocation.lng}`);
+  });
 
-        let router = platform.getRoutingService(null, 8);
-        let routeParams = {
-            routingMode: 'fast',
-            transportMode: 'car',
-            origin: `${start.lat},${start.lng}`,
-            destination: `${end.lat},${end.lng}`,
-            return: 'polyline,summary'
-        };
-
-        router.calculateRoute(routeParams, function (result) {
-            if (!result.routes.length || !result.routes[0].sections) {
-                alert("No route found!");
-                return;
-            }
-
-            if (routeLine) {
-                map.removeObject(routeLine);
-            }
-
-            let route = result.routes[0];
-            let lineString = new H.geo.LineString();
-
-            route.sections.forEach(section => {
-                let coords = H.geo.LineString.fromFlexiblePolyline(section.polyline);
-                coords.getLatLngAltArray().forEach((value, index, array) => {
-                    if (index % 3 === 0) {
-                        lineString.pushLatLngAlt(array[index], array[index + 1]);
-                    }
-                });
-            });
-
-            routeLine = new H.map.Polyline(lineString, { style: { strokeColor: 'blue', lineWidth: 4 } });
-            map.addObject(routeLine);
-
-            let distance = (route.sections[0].summary.length / 1000).toFixed(2);
-            let travelTime = Math.ceil(route.sections[0].summary.duration / 60);
-            document.getElementById("distanceToDriver").innerText = `${distance} km`;
-            document.getElementById("ETA").innerText = `${travelTime} min`;
-
-        }, function (error) {
-            alert("Error calculating route: " + error);
-        });
+  // Check Driver
+  document.getElementById("checkDriver").addEventListener("click", async () => {
+    const start = document.getElementById("start").value.split(",").map(Number);
+    const end = document.getElementById("end").value.split(",").map(Number);
+    if (!selectedLocation) {
+      alert("Select a location on the map first.");
+      return;
     }
+    const driverFound = await fetchDriverLocation(start, end);
+    if (driverFound) calculateRoute(driverLocation, selectedLocation);
+  });
 
-    // ✅ Selecting Location on Map
-    map.addEventListener('tap', function (evt) {
-        let coord = map.screenToGeo(evt.currentPointer.viewportX, evt.currentPointer.viewportY);
-        selectedLocation = { lat: coord.lat, lng: coord.lng };
+  // Zoom & GPS controls
+  document.getElementById("zoomIn").addEventListener("click", () => map.zoomIn());
+  document.getElementById("zoomOut").addEventListener("click", () => map.zoomOut());
+  document.getElementById("gpsLocator").addEventListener("click", () => {
+    if (!selectedLocation) return alert("Select a location first!");
+    map.setView([selectedLocation.lat, selectedLocation.lng], 15);
+  });
 
-        if (selectedMarker) map.removeObject(selectedMarker);
-        selectedMarker = new H.map.Marker(selectedLocation);
-        map.addObject(selectedMarker);
+  // Current time updater
+  setInterval(() => {
+    document.getElementById("currentTime").innerText = new Date().toLocaleTimeString();
+  }, 1000);
 
-        alert(`Location Selected: ${selectedLocation.lat}, ${selectedLocation.lng}`);
-    });
-
-    // ✅ Checking for Driver & Route Calculation
-    document.getElementById("checkDriver").addEventListener("click", async function () {
-        let startSelect = document.getElementById("start");
-        let endSelect = document.getElementById("end");
-
-        if (!startSelect.value || !endSelect.value) {
-            alert("Please select both start and end locations first.");
-            return;
-        }
-
-        if (!selectedLocation) {
-            alert("Please select a location on the map.");
-            return;
-        }
-
-        let startCoords = startSelect.value.split(",").map(Number);
-        let endCoords = endSelect.value.split(",").map(Number);
-
-        let driverFound = await fetchDriverLocation(startCoords, endCoords);
-        if (!driverFound) {
-            showToast("No active driver found.", "info");
-            return;
-        }
-
-        alert(`Generating route from Driver (${driverLocation.lat}, ${driverLocation.lng}) to Selected Location (${selectedLocation.lat}, ${selectedLocation.lng})`);
-        calculateRoute(driverLocation, selectedLocation);
-    });
-
-    // ✅ Toast Message Function
-    function showToast(message, type) {
-        let toastContainer = document.querySelector('.toast-container');
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.className = 'toast-container';
-            document.body.appendChild(toastContainer);
-        }
-
-        let toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-
-        toastContainer.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 100);
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                toast.remove();
-            }, 500);
-        }, 3000);
-    }
-
-    // ✅ GPS Locator - Uses Selected Location from Map
-    document.getElementById("gpsLocator").addEventListener("click", function () {
-        if (!selectedLocation) {
-            alert("Please select a location on the map first.");
-            return;
-        }
-
-        // Center the map on the selected location
-        map.setCenter({ lat: selectedLocation.lat, lng: selectedLocation.lng });
-        map.setZoom(15); // Adjust zoom level if needed
-    });
-
-    // ✅ Zoom Controls
-    document.getElementById("zoomIn").addEventListener("click", function () {
-        let currentZoom = map.getZoom();
-        map.setZoom(currentZoom + 1);
-    });
-
-    document.getElementById("zoomOut").addEventListener("click", function () {
-        let currentZoom = map.getZoom();
-        map.setZoom(currentZoom - 1);
-    });
-
-    // ✅ Current Time Updater
-    function updateCurrentTime() {
-        let now = new Date();
-        let formattedTime = now.toLocaleTimeString();
-        document.getElementById("currentTime").innerText = formattedTime;
-    }
-
-    setInterval(updateCurrentTime, 1000);
-    updateCurrentTime();  // Call immediately to set initial time
-
+  function showToast(message, type) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add("show"), 100);
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
 });
