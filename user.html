@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Route Tracking</title>
 
-    <!-- HERE Maps SDK -->
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     <link rel="stylesheet" href="styles1.css">
 </head>
 <body>
-
 <style>
     .top-left-link {
         position: absolute;
@@ -36,7 +34,7 @@
 <h2>User Route Selection</h2>
 
 <div class="route-container">
-    <label for="start">Start: </label>
+    <label for="start">Start:</label>
     <select id="start">
         <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
         <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
@@ -47,7 +45,7 @@
         <option value="12.2958,76.6394">🚌 Mysuru</option>
     </select>
 
-    <label for="end">End: </label>
+    <label for="end">End:</label>
     <select id="end">
         <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
         <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
@@ -61,13 +59,12 @@
 
 <div class="controls">
     <button id="checkDriver">Find Driver</button>
-    <button id="selectFromMap">Select from Map</button>
     <button id="gpsLocator">⬤</button>
     <button id="zoomIn">+</button>
     <button id="zoomOut">−</button>
 </div>
 
-<div id="map"></div>
+<div id="map" style="height: 80vh; width: 100%;"></div>
 
 <a href="user2.html" class="top-left-link">Find Auto</a>
 
@@ -81,6 +78,6 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
-<script type="module" src="script1.js"></script>
+<script src="script1.js"></script>
 </body>
 </html>
