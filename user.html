@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,29 +9,124 @@
     <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
     <link rel="stylesheet" href="styles1.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #f9f9f9;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 10px;
+            color: #007BFF;
+        }
+
+        .route-container {
+            text-align: center;
+            margin: 10px;
+        }
+
+        select {
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .controls button {
+            margin: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+
+        #map {
+            width: 100%;
+            height: 75vh;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .info-table {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0px 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .info-table table {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: #333;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error { background-color: #e74c3c; }
+        .toast.info { background-color: #3498db; }
+        .toast.success { background-color: #2ecc71; }
+
+        .top-left-link {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+
+        .top-left-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<style>
-    .top-left-link {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #007BFF;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-family: Arial, sans-serif;
-    }
 
-    .top-left-link:hover {
-        background-color: #0056b3;
-    }
-</style>
 <h2>User Route Selection</h2>
 
-<!-- Dropdowns for Start and End Locations -->
 <div class="route-container">
     <label for="start">Start: </label>
     <select id="start">
@@ -58,7 +151,6 @@
     </select>
 </div>
 
-<!-- Action Buttons -->
 <div class="controls">
     <button id="checkDriver">Find Driver</button>
     <button id="selectFromMap">Select from Map</button>
@@ -67,30 +159,21 @@
     <button id="zoomOut">−</button>
 </div>
 
-<!-- Map Container -->
 <div id="map"></div>
-<!-- Redirect Button using <a> tag -->
-  <a href="user2.html" class="top-left-link">
-       Find Auto
-    </a>
 
-<!-- Transparent Table for Live Tracking -->
+<a href="user2.html" class="top-left-link">Find Auto</a>
+
 <div class="info-table">
     <table>
         <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
         <tr><td>📍 Distance to Driver:</td><td id="distanceToDriver">-- km</td></tr>
-        <tr><td>🚗 Estimated Time of Arrival (ETA):</td><td id="ETA">-- min</td></tr>
+        <tr><td>🚗 ETA:</td><td id="ETA">-- min</td></tr>
     </table>
 </div>
 
-<!-- Toast Notification Container -->
 <div id="toastContainer" class="toast-container"></div>
-
 
 <script type="module" src="script1.js"></script>
 
 </body>
 </html>
-
-
-
