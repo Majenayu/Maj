@@ -1,218 +1,120 @@
-
-
-
 document.addEventListener("DOMContentLoaded", function () {
-    const apiKey = "mzDLjmDOdq62sKIc4y81FgMv8pqj2ndZWPBraNyCm2w";
-    let platform = new H.service.Platform({ 'apikey': apiKey });
-    let defaultLayers = platform.createDefaultLayers();
-    let map = new H.Map(document.getElementById('map'), defaultLayers.vector.normal.map, {
-        zoom: 7,
-        center: { lat: 14.5, lng: 75.5 }
-    });
+    const apiKey = "e2fea1cd-bbea-428b-a974-0d63d55bb01d";
+    const map = L.map('map').setView([14.5, 75.5], 7);
 
-    let behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-    let ui = H.ui.UI.createDefault(map, defaultLayers);
-    let router = platform.getRoutingService(null, 8);
+    // OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-    let blueRoute, yellowRoute, userLocationMarker;
+    let blueRoute, yellowRoute, userMarker;
     let userLocation = null;
     let trackingWatcher = null;
-    
-    
 
-    function showToast(message, type) {
-        const toastContainer = document.getElementById("toastContainer");
-        if (!toastContainer) return;
-        const toast = document.createElement("div");
-        toast.className = `toast ${type} show`;
-        toast.innerText = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5000);
+    function showToast(msg) {
+        alert(msg);
     }
 
-    function removePreviousRoute(route) {
-        if (route) map.removeObject(route);
-        return null;
-    }
-
-    function updateUserLocation(position) {
-        userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-        if (userLocationMarker) map.removeObject(userLocationMarker);
-        userLocationMarker = new H.map.Marker(userLocation);
-        map.addObject(userLocationMarker);
-    }
-
-    
-    function updateTable(distance, duration) {
-        document.getElementById("distance").innerText = distance.toFixed(2) + " km";
-        document.getElementById("estimatedTime").innerText = Math.round(duration) + " min";
-    }
-
+    // Update time
     function updateTime() {
         let now = new Date();
         document.getElementById("currentTime").innerText = now.toLocaleTimeString();
     }
     setInterval(updateTime, 1000);
 
+    // Enable location tracking
     document.getElementById("enableLocation").addEventListener("click", function () {
         if (!navigator.geolocation) {
-            showToast("❌ Geolocation not supported.", "error");
+            showToast("❌ Geolocation not supported.");
             return;
         }
-    
-        navigator.geolocation.watchPosition(
-            (position) => {
-                let lat = position.coords.latitude;
-                let lng = position.coords.longitude;
-                sendDriverLocationToServer(lat, lng);
+
+        trackingWatcher = navigator.geolocation.watchPosition(
+            (pos) => {
+                userLocation = [pos.coords.latitude, pos.coords.longitude];
+                if (userMarker) userMarker.remove();
+                userMarker = L.marker(userLocation).addTo(map);
+                sendDriverLocationToServer(userLocation[0], userLocation[1]);
             },
-            (error) => {
-                showToast("❌ Failed to access location.", "error");
-            },
+            (err) => showToast("❌ Failed to access location."),
             { enableHighAccuracy: true }
         );
-    
-        showToast("✅ Sharing location started!", "success");
 
-        if (!navigator.geolocation) {
-            showToast("❌ Geolocation not supported.", "error");
-            return;
-        }
-        trackingWatcher = navigator.geolocation.watchPosition(updateUserLocation, function () {
-            showToast("❌ Failed to access location.", "error");
-        }, { enableHighAccuracy: true });
-        showToast("✅ Location enabled!", "success");
-        document.getElementById("userRouteBtn").style.display = "block";
+        showToast("✅ Location enabled!");
     });
-  
 
+    // Disable location
     document.getElementById("disableLocation").addEventListener("click", function () {
         if (trackingWatcher) navigator.geolocation.clearWatch(trackingWatcher);
         trackingWatcher = null;
         userLocation = null;
-        if (userLocationMarker) map.removeObject(userLocationMarker);
-        blueRoute = removePreviousRoute(blueRoute);
-        showToast("❌ Location disabled!", "error");
-        document.getElementById("userRouteBtn").style.display = "none";
+        if (userMarker) userMarker.remove();
+        if (blueRoute) blueRoute.remove();
+        showToast("❌ Location disabled!");
     });
 
-    function calculateRoute(start, end, color, isUserRoute) {
-        let routingParams = {
-            'transportMode': 'car',
-            'origin': `${start[0]},${start[1]}`,
-            'destination': `${end[0]},${end[1]}`,
-            'return': 'polyline,summary'
-        };
-        
-        router.calculateRoute(routingParams, (result) => {
-            if (result.routes.length === 0) {
-                showToast("❌ No route found.", "error");
-                return;
-            }
-            
-            let routeShape = result.routes[0].sections[0].polyline;
-            let routePoints = H.geo.LineString.fromFlexiblePolyline(routeShape);
-            let newRoute = new H.map.Polyline(routePoints, { style: { strokeColor: color, lineWidth: 5 } });
-    
-            if (isUserRoute) {
-                // ✅ Remove old blue route before adding a new one
-                blueRoute = removePreviousRoute(blueRoute);
-                blueRoute = newRoute;
-    
-                let summary = result.routes[0].sections[0].summary;
-                updateTable(summary.length / 1000, summary.duration / 60);
-            } else {
-                // ✅ Remove old yellow route before adding a new one
-                yellowRoute = removePreviousRoute(yellowRoute);
-                yellowRoute = newRoute;
-            }
-    
-            map.addObject(newRoute);
-            map.getViewModel().setLookAtData({ bounds: newRoute.getBoundingBox() });
-        }, () => showToast("❌ Failed to generate route.", "error"));
+    // Calculate route using GraphHopper API
+    async function calculateRoute(start, end, color) {
+        const url = `https://graphhopper.com/api/1/route?point=${start[0]},${start[1]}&point=${end[0]},${end[1]}&vehicle=car&locale=en&points_encoded=false&key=${apiKey}`;
+
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const coords = data.paths[0].points.coordinates.map(c => [c[1], c[0]]);
+
+            // Remove previous route
+            if (color === 'blue' && blueRoute) blueRoute.remove();
+            if (color === 'yellow' && yellowRoute) yellowRoute.remove();
+
+            const routeLine = L.polyline(coords, { color: color, weight: 5 }).addTo(map);
+            map.fitBounds(routeLine.getBounds());
+
+            if (color === 'blue') blueRoute = routeLine;
+            else yellowRoute = routeLine;
+
+            const timeMin = data.paths[0].time / 60000;
+            document.getElementById("estimatedTime").innerText = Math.round(timeMin) + " min";
+        } catch (err) {
+            console.error(err);
+            showToast("❌ Failed to generate route.");
+        }
     }
-    
+
+    // Show route button
+    document.getElementById("routeBtn").addEventListener("click", function () {
+        let start = document.getElementById("startPoint").value.split(",").map(Number);
+        let end = document.getElementById("endPoint").value.split(",").map(Number);
+
+        if (userLocation) calculateRoute(userLocation, end, "blue");
+        calculateRoute(start, end, "yellow");
+    });
+
+    // GPS locator button
+    document.getElementById("gpsLocator").addEventListener("click", function () {
+        if (userLocation) {
+            map.setView(userLocation, 15);
+        } else {
+            showToast("❌ Location not available.");
+        }
+    });
+
+    // Zoom buttons
+    document.getElementById("zoomIn").addEventListener("click", () => map.zoomIn());
+    document.getElementById("zoomOut").addEventListener("click", () => map.zoomOut());
+
+    // Send location to backend
     function sendDriverLocationToServer(lat, lng) {
         let startCoords = document.getElementById("startPoint").value.split(",").map(Number);
         let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
-    
-        fetch("https://maj-65qm.onrender.com/update-location", {
 
+        fetch("https://maj-65qm.onrender.com/update-location", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                start: startCoords,
-                end: endCoords,
-                lat: lat,
-                lng: lng
-            })
+            body: JSON.stringify({ start: startCoords, end: endCoords, lat, lng })
         })
-        .then(response => response.json())
-        .then(data => {
-            showToast("✅ Driver location updated!", "success");
-        })
-        .catch(error => {
-            console.error("Error sending location:", error);
-            showToast("❌ Failed to update driver location.", "error");
-        });
+        .then(res => res.json())
+        .then(() => showToast("✅ Driver location updated!"))
+        .catch(() => showToast("❌ Failed to update driver location."));
     }
-    function updateUserRoute() {
-        if (!userLocation) {
-            showToast("❌ Cannot find user location.", "error");
-            return;
-        }
-        let end = document.getElementById("endPoint").value.split(",");
-        let userStart = [userLocation.lat, userLocation.lng];
-        calculateRoute(userStart, end, 'blue', true);
-    }
-
-    
-
-    document.getElementById("routeBtn").addEventListener("click", function () {
-        let startCoords = document.getElementById("startPoint").value.split(",").map(Number);
-        let endCoords = document.getElementById("endPoint").value.split(",").map(Number);
-        updateUserRoute();
-        calculateRoute(startCoords, endCoords, 'yellow', false);
-        
-       
-    });
-    
-    let idleTimer = null;
-
-    function zoomToUserLocation() {
-        if (userLocation) {
-            map.setCenter(userLocation);
-            map.setZoom(15); // Adjust zoom level as needed
-        } else {
-            showToast("❌ Location not available.", "error");
-        }
-    }
-    
-    // Reset idle timer on user interaction
-    function resetIdleTimer() {
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(zoomToUserLocation, 10000); // Auto-zoom after 10 sec of inactivity
-    }
-    
-    // Detect user activity
-    map.addEventListener("pointerdown", resetIdleTimer);
-    map.addEventListener("wheel", resetIdleTimer);
-    map.addEventListener("touchstart", resetIdleTimer);
-    map.addEventListener("dragstart", resetIdleTimer);
-    
-    // Manual button click
-    document.getElementById("gpsLocator").addEventListener("click", zoomToUserLocation);
-    
-    document.getElementById("zoomIn").addEventListener("click", function () {
-        let currentZoom = map.getZoom();
-        map.setZoom(currentZoom + 1);
-    });
-    
-    document.getElementById("zoomOut").addEventListener("click", function () {
-        let currentZoom = map.getZoom();
-        map.setZoom(currentZoom - 1);
-    });
-    
-    
 });
-
