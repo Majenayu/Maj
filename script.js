@@ -90,24 +90,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Send driver location every 5 seconds
       if (sendInterval) clearInterval(sendInterval);
-      sendInterval = setInterval(async () => {
-        if (!currentLocation) return;
-        const [lat, lng] = currentLocation;
+    sendInterval = setInterval(async () => {
+  if (!currentLocation) return;
+  const [lat, lng] = currentLocation;
 
-        await fetch("https://maj-65qm.onrender.com/update-location", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            driverId,
-            startName,
-            endName,
-            startCoords,
-            endCoords,
-            lat,
-            lng
-          }),
-        }).catch(() => console.log("⚠️ Failed to send location"));
-      }, 5000);
+  await fetch("https://maj-65qm.onrender.com/update-location", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      driverId,
+      startName,
+      endName,
+      startCoords,
+      endCoords,
+      lat,
+      lng
+    }),
+  });
+}, 5000);
+
     } catch (err) {
       console.error(err);
       showToast("❌ Route fetch failed!");
