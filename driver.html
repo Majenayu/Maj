@@ -3,84 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Route Tracking</title>
+    <title>Driver Route Selection</title>
 
-    <!-- HERE Maps SDK -->
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
-    <link rel="stylesheet" href="styles1.css">
+    <!-- Leaflet Map Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            text-align: center;
+            background: #f5f5f5;
+        }
+
+        h2 {
+            margin: 10px;
+        }
+
+        .controls {
+            margin: 10px;
+        }
+
+        #map {
+            height: 75vh;
+            width: 95%;
+            margin: auto;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+        }
+
+        .info-table {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .toast {
+            background: #333;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin-top: 5px;
+            opacity: 0.9;
+            transition: opacity 0.5s ease;
+        }
+
+        button {
+            margin: 3px;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            background: #1976d2;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #125ca1;
+        }
+    </style>
 </head>
 <body>
+    <h2>Driver Route Selection</h2>
 
-<style>
-    .top-left-link {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #007BFF;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-family: Arial, sans-serif;
-    }
+    <div class="controls">
+        <button id="enableLocation">Enable Location</button>
+        <button id="disableLocation">Disable Location</button>
+    </div>
 
-    .top-left-link:hover {
-        background-color: #0056b3;
-    }
-</style>
+    <div class="controls">
+        <label for="startPoint">Start:</label>
+        <select id="startPoint">
+            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+            <option value="13.3409,74.7421">🚌 Udupi</option>
+            <option value="14.4530,75.9215">🚌 Shivamogga</option>
+            <option value="15.3647,75.1239">🚌 Hubli</option>
+            <option value="15.8497,74.4977">🚌 Belagavi</option>
+            <option value="12.2958,76.6394">🚌 Mysuru</option>
+        </select>
 
-<h2>User Route Selection</h2>
+        <label for="endPoint">Destination:</label>
+        <select id="endPoint">
+            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+            <option value="13.3409,74.7421">🚌 Udupi</option>
+            <option value="14.4530,75.9215">🚌 Shivamogga</option>
+            <option value="15.3647,75.1239">🚌 Hubli</option>
+            <option value="15.8497,74.4977">🚌 Belagavi</option>
+            <option value="12.2958,76.6394">🚌 Mysuru</option>
+        </select>
 
-<div class="route-container">
-    <label for="start">Start: </label>
-    <select id="start">
-        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-        <option value="13.3409,74.7421">🚌 Udupi</option>
-        <option value="14.4530,75.9215">🚌 Shivamogga</option>
-        <option value="15.3647,75.1239">🚌 Hubli</option>
-        <option value="15.8497,74.4977">🚌 Belagavi</option>
-        <option value="12.2958,76.6394">🚌 Mysuru</option>
-    </select>
+        <button id="routeBtn">Show Route</button>
+        <button id="gpsLocator">⬤</button>
+        <button id="zoomIn">+</button>
+        <button id="zoomOut">−</button>
+    </div>
 
-    <label for="end">End: </label>
-    <select id="end">
-        <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-        <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-        <option value="13.3409,74.7421">🚌 Udupi</option>
-        <option value="14.4530,75.9215">🚌 Shivamogga</option>
-        <option value="15.3647,75.1239">🚌 Hubli</option>
-        <option value="15.8497,74.4977">🚌 Belagavi</option>
-        <option value="12.2958,76.6394">🚌 Mysuru</option>
-    </select>
-</div>
+    <div id="map"></div>
 
-<div class="controls">
-    <button id="checkDriver">Find Driver</button>
-    <button id="selectFromMap">Select from Map</button>
-    <button id="gpsLocator">⬤</button>
-    <button id="zoomIn">+</button>
-    <button id="zoomOut">−</button>
-</div>
+    <div class="info-table">
+        <table>
+            <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
+            <tr><td>🚗 Approx Time:</td><td id="estimatedTime">-- min</td></tr>
+        </table>
+    </div>
 
-<div id="map"></div>
+    <div id="toastContainer" class="toast-container"></div>
 
-<a href="user2.html" class="top-left-link">Find Auto</a>
-
-<div class="info-table">
-    <table>
-        <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
-        <tr><td>📍 Distance to Driver:</td><td id="distanceToDriver">-- km</td></tr>
-        <tr><td>🚗 Estimated Time of Arrival (ETA):</td><td id="ETA">-- min</td></tr>
-    </table>
-</div>
-
-<div id="toastContainer" class="toast-container"></div>
-
-<script type="module" src="script1.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
