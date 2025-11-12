@@ -6,215 +6,107 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
+// ✅ Middleware
 app.use(cors({
-    origin: "https://majenayu.github.io",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
+  origin: ["https://majenayu.github.io", "http://localhost:3000"],
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
 }));
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// ✅ Connect to MongoDB
+mongoose.connect("mongodb+srv://ayu:ayu@ayu.cawv7.mongodb.net/drive?retryWrites=true&w=majority")
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-// Serve script1.js and script.js from their current location
-app.use("/script1.js", express.static(path.join(__dirname, "script1.js")));
-app.use("/script.js", express.static(path.join(__dirname, "script.js")));
-app.use("/script11.js", express.static(path.join(__dirname, "script11.js")));
-app.use("/script12.js", express.static(path.join(__dirname, "script12.js")));
+// ✅ Define Driver Schema
+const driverSchema = new mongoose.Schema({
+  driverId: { type: String, required: true }, // unique for each driver
+  startName: String,
+  endName: String,
+  startCoords: [Number],
+  endCoords: [Number],
+  lat: Number,
+  lng: Number,
+  updatedAt: { type: Date, default: Date.now }
+});
 
-// Connect to MongoDB
-mongoose.connect("mongodb+srv://ayu:ayu@ayu.cawv7.mongodb.net/?appName=ayu")
-    .then(() => console.log("✅ Connected to MongoDB"))
-    .catch(err => console.error("❌ MongoDB Connection Error:", err));
-
-
-// Route-to-collection mapping
-const routeCollections = [
-    { start: [12.9172, 74.8560], end: [12.9716, 77.5946], collection: "1" },
-    { start: [12.9172, 74.8560], end: [13.3409, 74.7421], collection: "2" },
-    { start: [12.9172, 74.8560], end: [14.4530, 75.9215], collection: "3" },
-    { start: [12.9172, 74.8560], end: [15.3647, 75.1239], collection: "4" },
-    { start: [12.9172, 74.8560], end: [15.8497, 74.4977], collection: "5" },
-    { start: [12.9172, 74.8560], end: [12.2958, 76.6394], collection: "6" },
-    { start: [12.9716, 77.5946], end: [12.9172, 74.8560], collection: "7" },
-    { start: [12.9716, 77.5946], end: [13.3409, 74.7421], collection: "8" },
-    { start: [12.9716, 77.5946], end: [14.4530, 75.9215], collection: "9" },
-    { start: [12.9716, 77.5946], end: [15.3647, 75.1239], collection: "10" },
-    { start: [12.9716, 77.5946], end: [15.8497, 74.4977], collection: "11" },
-    { start: [12.9716, 77.5946], end: [12.2958, 76.6394], collection: "12" },
-    { start: [13.3409, 74.7421], end: [12.9172, 74.8560], collection: "13" },
-    { start: [13.3409, 74.7421], end: [12.9716, 77.5946], collection: "14" },
-    { start: [13.3409, 74.7421], end: [14.4530, 75.9215], collection: "15" },
-    { start: [13.3409, 74.7421], end: [15.3647, 75.1239], collection: "16" },
-    { start: [13.3409, 74.7421], end: [15.8497, 74.4977], collection: "17" },
-    { start: [13.3409, 74.7421], end: [12.2958, 76.6394], collection: "18" },
-    { start: [14.4530, 75.9215], end: [12.9172, 74.8560], collection: "19" },
-    { start: [14.4530, 75.9215], end: [12.9716, 77.5946], collection: "20" },
-    { start: [14.4530, 75.9215], end: [13.3409, 74.7421], collection: "21" },
-    { start: [14.4530, 75.9215], end: [15.3647, 75.1239], collection: "22" },
-    { start: [14.4530, 75.9215], end: [15.8497, 74.4977], collection: "23" },
-    { start: [14.4530, 75.9215], end: [12.2958, 76.6394], collection: "24" },
-    { start: [15.3647, 75.1239], end: [12.9172, 74.8560], collection: "25" },
-    { start: [15.3647, 75.1239], end: [12.9716, 77.5946], collection: "26" },
-    { start: [15.3647, 75.1239], end: [13.3409, 74.7421], collection: "27" },
-    { start: [15.3647, 75.1239], end: [14.4530, 75.9215], collection: "28" },
-    { start: [15.3647, 75.1239], end: [15.8497, 74.4977], collection: "29" },
-    { start: [15.3647, 75.1239], end: [12.2958, 76.6394], collection: "30" },];
-
-// Function to get the correct MongoDB collection
-function getRouteCollection(start, end) {
-    start = start.map(Number);
-    end = end.map(Number);
-
-    const route = routeCollections.find(r => 
-        r.start[0] === start[0] && r.start[1] === start[1] && 
-        r.end[0] === end[0] && r.end[1] === end[1]
-    );
-
-    return route ? mongoose.connection.db.collection(route.collection) : null;
+// This function gets the correct model (collection) dynamically
+function getRouteModel(startName, endName) {
+  const collectionName = `${startName.toLowerCase()}_${endName.toLowerCase()}`.replace(/\s+/g, '');
+  return mongoose.models[collectionName] || mongoose.model(collectionName, driverSchema, collectionName);
 }
 
-// API to update the driver's location
+// ✅ API: Update driver location
 app.post("/update-location", async (req, res) => {
-    try {
-        const { start, end, lat, lng } = req.body;
-        if (!start || !end || !lat || !lng) {
-            return res.status(400).json({ error: "Missing required parameters" });
-        }
-
-        // Get the appropriate MongoDB collection
-        const routeCollection = getRouteCollection(start, end);
-        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
-
-        // Update the driver's location in the collection
-        await routeCollection.updateOne(
-            {},
-            { $set: { driverLocation: { lat, lng }, timestamp: new Date() } },
-            { upsert: true }
-        );
-
-        res.json({ message: "Driver location updated successfully" });
-    } catch (error) {
-        console.error("Error updating location:", error);
-        res.status(500).json({ error: "Server error" });
-    }
-});
-
-// API to update the passenger count on a specific route
-app.post("/update-passenger-count", async (req, res) => {
-    try {
-        const { start, end, count } = req.body;
-        if (!start || !end || typeof count !== "number") {
-            return res.status(400).json({ error: "Missing or invalid parameters" });
-        }
-
-        // Get the appropriate MongoDB collection
-        const routeCollection = getRouteCollection(start, end);
-        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
-
-        // Update the passenger count in the collection
-        await routeCollection.updateOne(
-            {},
-            { $set: { passengerCount: count, passengerUpdateTime: new Date() } },
-            { upsert: true }
-        );
-
-        res.json({ message: "Passenger count updated successfully" });
-    } catch (error) {
-        console.error("Error updating passenger count:", error);
-        res.status(500).json({ error: "Server error" });
-    }
-});
-
-
-
-
-// API to retrieve the driver's location
-app.get("/get-driver-location", async (req, res) => {
-    try {
-        const { start, end } = req.query;
-        if (!start || !end) {
-            return res.status(400).json({ error: "Missing start or end parameters" });
-        }
-
-        // Get the corresponding MongoDB collection
-        const routeCollection = getRouteCollection(JSON.parse(start), JSON.parse(end));
-        if (!routeCollection) return res.status(404).json({ error: "Route not found" });
-
-        // Retrieve the driver's latest location
-        const driverLocation = await routeCollection.findOne({}, { projection: { _id: 0 } });
-        if (!driverLocation) return res.status(404).json({ message: "No driver available on this route" });
-
-        res.json(driverLocation);
-    } catch (error) {
-        console.error("Error fetching driver location:", error);
-        res.status(500).json({ error: "Server error" });
-    }
-});
-
-
-
-// API to retrieve the passenger count on a specific route
-app.get("/get-passenger-count", async (req, res) => {
-    try {
-        const { start, end } = req.query;
-        if (!start || !end) {
-            return res.status(400).json({ error: "Missing start or end coordinates" });
-        }
-
-        const startCoords = start.split(',').map(Number);
-        const endCoords = end.split(',').map(Number);
-
-        const routeCollection = getRouteCollection(startCoords, endCoords);
-        if (!routeCollection) {
-            return res.status(404).json({ error: "No route found for the given coordinates" });
-        }
-
-        const countDoc = await routeCollection.findOne({}, { projection: { passengerCount: 1, _id: 0 } });
-        if (!countDoc || countDoc.passengerCount === undefined) {
-            return res.status(404).json({ error: "No passenger count available" });
-        }
-
-        res.json({ passengerCount: countDoc.passengerCount });
-    } catch (err) {
-        console.error("Server error in /get-passenger-count:", err);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-
-app.get("/get-driver-location", async (req, res) => {
   try {
-    const start = JSON.parse(req.query.start);
-    const end = JSON.parse(req.query.end);
-
-    // Example: fetch the latest driver location from your database
-    const driver = await Driver.findOne({ start, end }).sort({ updatedAt: -1 });
-
-    if (!driver) {
-      return res.status(404).json({ error: "Driver not found" });
+    const { driverId, startName, endName, startCoords, endCoords, lat, lng } = req.body;
+    if (!driverId || !startName || !endName || !lat || !lng) {
+      return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    res.json({ lat: driver.lat, lng: driver.lng });
-  } catch (err) {
-    console.error(err);
+    const RouteModel = getRouteModel(startName, endName);
+
+    await RouteModel.findOneAndUpdate(
+      { driverId },
+      {
+        driverId,
+        startName,
+        endName,
+        startCoords,
+        endCoords,
+        lat,
+        lng,
+        updatedAt: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({ message: "✅ Driver location updated successfully" });
+  } catch (error) {
+    console.error("Error updating location:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
 
+// ✅ API: Get all active drivers on a route
+app.get("/get-drivers", async (req, res) => {
+  try {
+    const { startName, endName } = req.query;
+    if (!startName || !endName)
+      return res.status(400).json({ error: "Missing startName or endName" });
 
+    const RouteModel = getRouteModel(startName, endName);
+    const drivers = await RouteModel.find({});
 
+    if (!drivers.length) {
+      return res.status(404).json({ message: "No active drivers" });
+    }
 
+    res.json(drivers);
+  } catch (error) {
+    console.error("Error fetching drivers:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ✅ Cleanup: Delete driver documents older than 5 minutes
+setInterval(async () => {
+  try {
+    const allCollections = await mongoose.connection.db.listCollections().toArray();
+    for (const coll of allCollections) {
+      const model = mongoose.models[coll.name] || mongoose.model(coll.name, driverSchema, coll.name);
+      await model.deleteMany({ updatedAt: { $lt: new Date(Date.now() - 5 * 60 * 1000) } });
+    }
+    console.log("🧹 Old driver entries cleaned up");
+  } catch (err) {
+    console.error("Cleanup error:", err);
+  }
+}, 60 * 1000); // Runs every minute
 
 app.get("/", (req, res) => {
-    res.send("Backend is running!");
+  res.send("Driver tracking backend is running ✅");
 });
 
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
-
-
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
