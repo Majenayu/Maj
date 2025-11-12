@@ -5,59 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Route Selection</title>
 
-    <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
 
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h2>Driver Route Selection</h2>
 
-    <div class="controls">
-        <button id="enableLocation">Enable Location</button>
-        <button id="disableLocation">Disable Location</button>
-    </div>
+<h2>Driver Route Selection</h2>
 
-    <div class="controls">
-        <label for="startPoint">Route</label>
-        <select id="startPoint">
-            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-            <option value="13.3409,74.7421">🚌 Udupi</option>
-            <option value="14.4530,75.9215">🚌 Shivamogga</option>
-            <option value="15.3647,75.1239">🚌 Hubli</option>
-            <option value="15.8497,74.4977">🚌 Belagavi</option>
-            <option value="12.2958,76.6394">🚌 Mysuru</option>
-        </select>
+<div class="controls">
+    <button id="enableLocation">Enable Location</button>
+    <button id="disableLocation">Disable Location</button>
+</div>
 
-        <select id="endPoint">
-            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-            <option value="13.3409,74.7421">🚌 Udupi</option>
-            <option value="14.4530,75.9215">🚌 Shivamogga</option>
-            <option value="15.3647,75.1239">🚌 Hubli</option>
-            <option value="15.8497,74.4977">🚌 Belagavi</option>
-            <option value="12.2958,76.6394">🚌 Mysuru</option>
-        </select>
+<div class="controls">
+    <label for="startPoint">Start:</label>
+    <select id="startPoint">
+        <option value="12.9172,74.8560">Mangalore KSRTC</option>
+        <option value="13.3409,74.7421">Udupi</option>
+        <option value="14.4530,75.9215">Shivamogga</option>
+        <option value="15.3647,75.1239">Hubli</option>
+        <option value="12.2958,76.6394">Mysuru</option>
+        <option value="15.8497,74.4977">Belagavi</option>
+        <option value="12.9716,77.5946">Bengaluru</option>
+    </select>
 
-        <button id="routeBtn">Show Route</button>
-        <button id="gpsLocator">⬤</button>
-        <button id="zoomIn">+</button>
-        <button id="zoomOut">−</button>
-    </div>
+    <label for="endPoint">End:</label>
+    <select id="endPoint">
+        <option value="12.9172,74.8560">Mangalore KSRTC</option>
+        <option value="13.3409,74.7421">Udupi</option>
+        <option value="14.4530,75.9215">Shivamogga</option>
+        <option value="15.3647,75.1239">Hubli</option>
+        <option value="12.2958,76.6394">Mysuru</option>
+        <option value="15.8497,74.4977">Belagavi</option>
+        <option value="12.9716,77.5946">Bengaluru</option>
+    </select>
 
-    <div id="map" style="height: 80vh; width: 100%;"></div>
+    <button id="routeBtn">Show Route</button>
+</div>
 
-    <div class="info-table">
-        <table>
-            <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
-            <tr><td>🚗 Approximate Time:</td><td id="estimatedTime">-- min</td></tr>
-        </table>
-    </div>
+<div id="map"></div>
 
-    <div id="toastContainer" class="toast-container"></div>
+<div class="info-table">
+    <table>
+        <tr><td>Current Time:</td><td id="currentTime">--:--:--</td></tr>
+        <tr><td>Distance:</td><td id="distance">-- km</td></tr>
+        <tr><td>Time:</td><td id="estimatedTime">-- min</td></tr>
+    </table>
+</div>
 
-    <script src="script.js"></script>
+<div id="toastContainer" class="toast-container"></div>
+
+<script type="module" src="script.js"></script>
 </body>
 </html>
