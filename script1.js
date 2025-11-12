@@ -62,7 +62,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const res = await fetch("https://maj-65qm.onrender.com/get-location");
+           const start = document.getElementById("startPoint").value.split(",").map(Number);
+const end = document.getElementById("endPoint").value.split(",").map(Number);
+const res = await fetch(`https://maj-65qm.onrender.com/get-driver-location?start=${JSON.stringify(start)}&end=${JSON.stringify(end)}`);
+
             const data = await res.json();
 
             const driverLat = data.lat;
@@ -114,3 +117,4 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("zoomIn").addEventListener("click", () => map.zoomIn());
     document.getElementById("zoomOut").addEventListener("click", () => map.zoomOut());
 });
+
