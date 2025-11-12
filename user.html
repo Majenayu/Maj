@@ -15,30 +15,31 @@
     <h2>User Route Tracking</h2>
 
     <div class="controls">
-        <button id="enableLocation">Enable Location</button>
+        <button id="enableLocation">Enable Live Location</button>
+        <button id="selectOnMap">Select on Map</button>
         <button id="disableLocation">Disable Location</button>
     </div>
 
     <div class="controls">
-        <label for="startPoint">Route</label>
+        <label>Route</label>
         <select id="startPoint">
-            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-            <option value="13.3409,74.7421">🚌 Udupi</option>
-            <option value="14.4530,75.9215">🚌 Shivamogga</option>
-            <option value="15.3647,75.1239">🚌 Hubli</option>
-            <option value="15.8497,74.4977">🚌 Belagavi</option>
-            <option value="12.2958,76.6394">🚌 Mysuru</option>
+            <option value="Mangalore KSRTC">🚌 Mangalore KSRTC</option>
+            <option value="Majestic, Bengaluru">🚌 Majestic, Bengaluru</option>
+            <option value="Udupi">🚌 Udupi</option>
+            <option value="Shivamogga">🚌 Shivamogga</option>
+            <option value="Hubli">🚌 Hubli</option>
+            <option value="Belagavi">🚌 Belagavi</option>
+            <option value="Mysuru">🚌 Mysuru</option>
         </select>
 
         <select id="endPoint">
-            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
-            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
-            <option value="13.3409,74.7421">🚌 Udupi</option>
-            <option value="14.4530,75.9215">🚌 Shivamogga</option>
-            <option value="15.3647,75.1239">🚌 Hubli</option>
-            <option value="15.8497,74.4977">🚌 Belagavi</option>
-            <option value="12.2958,76.6394">🚌 Mysuru</option>
+            <option value="Mangalore KSRTC">🚌 Mangalore KSRTC</option>
+            <option value="Majestic, Bengaluru">🚌 Majestic, Bengaluru</option>
+            <option value="Udupi">🚌 Udupi</option>
+            <option value="Shivamogga">🚌 Shivamogga</option>
+            <option value="Hubli">🚌 Hubli</option>
+            <option value="Belagavi">🚌 Belagavi</option>
+            <option value="Mysuru">🚌 Mysuru</option>
         </select>
 
         <button id="findDriver">Find Driver</button>
@@ -47,7 +48,12 @@
         <button id="zoomOut">−</button>
     </div>
 
-    <div id="map" style="height: 80vh; width: 100%;"></div>
+    <div id="map" style="height: 70vh; width: 100%; margin-top: 10px;"></div>
+
+    <div id="driverListContainer" class="info-table" style="margin-top: 10px;">
+        <h3>Available Drivers:</h3>
+        <ul id="driverList"></ul>
+    </div>
 
     <div class="info-table">
         <table>
@@ -61,4 +67,6 @@
 
     <script src="script1.js"></script>
 </body>
+
 </html>
+
