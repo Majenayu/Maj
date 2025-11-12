@@ -183,6 +183,24 @@ app.get("/get-passenger-count", async (req, res) => {
     }
 });
 
+app.get("/get-driver-location", async (req, res) => {
+  try {
+    const start = JSON.parse(req.query.start);
+    const end = JSON.parse(req.query.end);
+
+    // Example: fetch the latest driver location from your database
+    const driver = await Driver.findOne({ start, end }).sort({ updatedAt: -1 });
+
+    if (!driver) {
+      return res.status(404).json({ error: "Driver not found" });
+    }
+
+    res.json({ lat: driver.lat, lng: driver.lng });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
 
@@ -197,5 +215,6 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
 
