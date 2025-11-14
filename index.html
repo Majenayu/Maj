@@ -1,361 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Majen Navigation</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
-        /* Animated Background */
-        #background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow: hidden;
-        }
-
-        #background::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-            animation: float 20s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(120deg); }
-            66% { transform: translate(-20px, 20px) rotate(240deg); }
-        }
-
-        /* Preloader Styles */
-        #preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 1s ease;
-        }
-
-        .loader-container {
-            text-align: center;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .welcome-text {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 2rem;
-            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            animation: textGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes textGlow {
-            0%, 100% { text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
-            50% { text-shadow: 0 4px 25px rgba(255, 255, 255, 0.5); }
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 1.5rem;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loader-text {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            letter-spacing: 2px;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Main Content */
-        #main-content {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-            animation: fadeIn 1s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .quote-container {
-            text-align: center;
-            margin-bottom: 4rem;
-            animation: slideDown 0.8s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        #quote {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            margin-bottom: 1rem;
-            line-height: 1.4;
-        }
-
-        .quote-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 300;
-            margin-top: 1rem;
-        }
-
-        /* Button Container */
-        .button-container {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            animation: fadeInUp 1s ease 0.3s both;
-        }
-
-        /* Enhanced Buttons */
-        .nav-button {
-            position: relative;
-            padding: 1.5rem 3rem;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: white;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-        }
-
-        .nav-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .nav-button:hover::before {
-            left: 100%;
-        }
-
-        .nav-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .nav-button:active {
-            transform: translateY(-2px);
-        }
-
-        .nav-button span {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .button-icon {
-            font-size: 1.5rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .welcome-text {
-                font-size: 1.8rem;
-            }
-
-            #quote {
-                font-size: 2rem;
-            }
-
-            .button-container {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-
-            .nav-button {
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .quote-subtitle {
-                font-size: 1rem;
-            }
-        }
-
-        /* Decorative Elements */
-        .decoration {
-            position: fixed;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            pointer-events: none;
-        }
-
-        .decoration-1 {
-            width: 300px;
-            height: 300px;
-            top: -100px;
-            right: -100px;
-            animation: float 15s ease-in-out infinite;
-        }
-
-        .decoration-2 {
-            width: 200px;
-            height: 200px;
-            bottom: -50px;
-            left: -50px;
-            animation: float 12s ease-in-out infinite reverse;
-        }
-
-        .decoration-3 {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            right: 10%;
-            animation: float 18s ease-in-out infinite;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Live Tracker</title>
+  <!-- ✅ Leaflet CSS + JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    #map {
+      height: 75vh;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .controls, .info-table {
+      margin: 10px;
+    }
+    button {
+      margin: 3px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .toast-container {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      z-index: 9999;
+    }
+    .toast {
+      margin-top: 5px;
+      padding: 10px 15px;
+      border-radius: 5px;
+      background: #333;
+      color: white;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
 <body>
-    <!-- Preloader -->
-    <div id="preloader">
-        <div class="loader-container">
-            <div class="welcome-text">Welcome to Majen Navigation</div>
-            <div class="spinner"></div>
-            <div class="loader-text">Loading your journey...</div>
-        </div>
-    </div>
-
-    <!-- Background -->
-    <div id="background"></div>
-
-    <!-- Decorative Elements -->
-    <div class="decoration decoration-1"></div>
-    <div class="decoration decoration-2"></div>
-    <div class="decoration decoration-3"></div>
-
-    <!-- Main Content -->
-    <div id="main-content">
-        <div class="quote-container">
-            <h1 id="quote"></h1>
-            <p class="quote-subtitle">Choose your journey type</p>
-        </div>
-        
-        <div class="button-container">
-            <a href="driver.html" class="nav-button">
-                <span><span class="button-icon">🚌</span> Bus Driver</span>
-            </a>
-            <a href="user.html" class="nav-button">
-                <span><span class="button-icon">👤</span> Passenger</span>
-            </a>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const quotes = [
-                "Adventure awaits! 🚀",
-                "Life is a journey, not a destination 🌍",
-                "Keep calm and travel on ✈️",
-                "Roads were made for journeys 🛣️",
-                "The world is yours to explore 🌎",
-                "Travel far, live fully 🌅",
-                "Not all who wander are lost 🧭",
-                "Collect moments, not things 📸",
-                "Happiness is planning a trip 🗺️",
-                "Explore more, worry less 🌟"
-            ];
-
-            // Display random quote
-            const quoteElement = document.getElementById("quote");
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            quoteElement.textContent = randomQuote;
-
-            // Preloader fade out
-            setTimeout(() => {
-                document.getElementById("preloader").style.opacity = "0";
-                setTimeout(() => {
-                    document.getElementById("preloader").style.display = "none";
-                    document.getElementById("main-content").style.display = "flex";
-                }, 1000);
-            }, 3500);
-        });
-    </script>
+  <h2>🚗 Driver Route & Location Tracker</h2>
+  <div class="controls">
+    <label>Start Point:</label>
+    <select id="startPoint">
+            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+            <option value="13.3409,74.7421">🚌 Udupi</option>
+            <option value="14.4530,75.9215">🚌 Shivamogga</option>
+            <option value="15.3647,75.1239">🚌 Hubli</option>
+            <option value="15.8497,74.4977">🚌 Belagavi</option>
+            <option value="12.2958,76.6394">🚌 Mysuru</option>
+        </select>
+        <select id="endPoint">
+            <option value="12.9172,74.8560">🚌 Mangalore KSRTC</option>
+            <option value="12.9716,77.5946">🚌 Majestic, Bengaluru</option>
+            <option value="13.3409,74.7421">🚌 Udupi</option>
+            <option value="14.4530,75.9215">🚌 Shivamogga</option>
+            <option value="15.3647,75.1239">🚌 Hubli</option>
+            <option value="15.8497,74.4977">🚌 Belagavi</option>
+            <option value="12.2958,76.6394">🚌 Mysuru</option>
+        </select>
+  </div>
+  <div class="controls">
+    <button id="enableLocation">Enable Location</button>
+    <button id="disableLocation">Disable Location</button>
+    <button id="routeBtn">Generate Route</button>
+    <button id="gpsLocator">📍</button>
+    <button id="zoomIn">+</button>
+    <button id="zoomOut">−</button>
+  </div>
+  <div id="map"></div>
+  <div class="info-table">
+    <table>
+      <tr><td>⏰ Current Time:</td><td id="currentTime">--:--:--</td></tr>
+      <tr><td>📏 Distance:</td><td id="distance">-- km</td></tr>
+      <tr><td>⏳ ETA:</td><td id="estimatedTime">-- min</td></tr>
+    </table>
+  </div>
+  <div id="toastContainer" class="toast-container"></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+  const apiKey = "e2fea1cd-bbea-428b-a974-0d63d55bb01d";
+  let driverId = "driver_" + Math.random().toString(36).substring(2, 9);
+  let map = L.map("map").setView([14.5, 75.5], 7);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+  let userMarker = null;
+  let watcher = null;
+  let routePolyline = null;
+  let currentLocation = null;
+  let sendInterval = null;
+  function showToast(message) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast show";
+    toast.innerText = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+  function updateClock() {
+    document.getElementById("currentTime").innerText = new Date().toLocaleTimeString();
+  }
+  setInterval(updateClock, 1000);
+  // ✅ Watch driver location
+  function startTracking() {
+    if (!navigator.geolocation) {
+      showToast("❌ Geolocation not supported!");
+      return;
+    }
+    watcher = navigator.geolocation.watchPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        currentLocation = [latitude, longitude];
+        if (userMarker) userMarker.remove();
+        userMarker = L.marker(currentLocation).addTo(map);
+      },
+      () => showToast("❌ Unable to get location."),
+      { enableHighAccuracy: true }
+    );
+  }
+  function stopTracking() {
+    if (watcher) navigator.geolocation.clearWatch(watcher);
+    watcher = null;
+    if (sendInterval) clearInterval(sendInterval);
+    sendInterval = null;
+    currentLocation = null;
+    if (userMarker) userMarker.remove();
+  }
+  // ✅ Generate route and start sending data
+  document.getElementById("routeBtn").addEventListener("click", async function () {
+    const startSelect = document.getElementById("startPoint");
+    const endSelect = document.getElementById("endPoint");
+    const startCoords = startSelect.value.split(",").map(Number);
+    const endCoords = endSelect.value.split(",").map(Number);
+    const startName = startSelect.options[startSelect.selectedIndex].text;
+    const endName = endSelect.options[endSelect.selectedIndex].text;
+    try {
+      const res = await fetch(
+        `https://graphhopper.com/api/1/route?point=${startCoords[0]},${startCoords[1]}&point=${endCoords[0]},${endCoords[1]}&vehicle=car&locale=en&points_encoded=false&key=${apiKey}`
+      );
+      const data = await res.json();
+      if (!data.paths || data.paths.length === 0) {
+        showToast("❌ No route found!");
+        return;
+      }
+      const coords = data.paths[0].points.coordinates.map(c => [c[1], c[0]]);
+      if (routePolyline) routePolyline.remove();
+      routePolyline = L.polyline(coords, { color: "blue", weight: 5 }).addTo(map);
+      map.fitBounds(routePolyline.getBounds());
+      const distance = data.paths[0].distance / 1000;
+      const duration = data.paths[0].time / 60000;
+      document.getElementById("distance").innerText = distance.toFixed(1) + " km";
+      document.getElementById("estimatedTime").innerText = Math.round(duration) + " min";
+      startTracking();
+      showToast("✅ Route generated & tracking started");
+      // Send driver location every 5 seconds
+      if (sendInterval) clearInterval(sendInterval);
+    sendInterval = setInterval(async () => {
+  if (!currentLocation) return;
+  const [lat, lng] = currentLocation;
+  await fetch("https://maj-65qm.onrender.com/update-location", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      driverId,
+      startName,
+      endName,
+      startCoords,
+      endCoords,
+      lat,
+      lng
+    }),
+  });
+}, 5000);
+    } catch (err) {
+      console.error(err);
+      showToast("❌ Route fetch failed!");
+    }
+  });
+  document.getElementById("enableLocation").addEventListener("click", startTracking);
+  document.getElementById("disableLocation").addEventListener("click", stopTracking);
+  document.getElementById("gpsLocator").addEventListener("click", () => {
+    if (currentLocation) map.setView(currentLocation, 14);
+    else showToast("❌ Location not available.");
+  });
+  document.getElementById("zoomIn").addEventListener("click", () => map.zoomIn());
+  document.getElementById("zoomOut").addEventListener("click", () => map.zoomOut());
+});
+  </script>
 </body>
 </html>
