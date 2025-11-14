@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 // ✅ Middleware
 app.use(cors({
   origin: ["https://majenayu.github.io", "http://localhost:3000"],
@@ -12,10 +13,12 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+
 // ✅ Connect to MongoDB
 mongoose.connect("mongodb+srv://ayu:ayu@ayu.cawv7.mongodb.net/live_location?retryWrites=true&w=majority")
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
 // ✅ Define Driver Schema
 const driverSchema = new mongoose.Schema({
   driverId: { type: String, required: true }, // unique for each driver
@@ -27,11 +30,19 @@ const driverSchema = new mongoose.Schema({
   lng: Number,
   updatedAt: { type: Date, default: Date.now }
 });
+
+// ✅ Clean name function to normalize collection names (remove emojis, special chars, spaces)
+function cleanName(name) {
+  if (!name) return '';
+  return name.replace(/[^\w\s]/g, '').trim().toLowerCase().replace(/\s+/g, '');
+}
+
 // This function gets the correct model (collection) dynamically
 function getRouteModel(startName, endName) {
-  const collectionName = `${startName.toLowerCase()}_${endName.toLowerCase()}`.replace(/\s+/g, '');
+  const collectionName = `${cleanName(startName)}_${cleanName(endName)}`;
   return mongoose.models[collectionName] || mongoose.model(collectionName, driverSchema, collectionName);
 }
+
 // ✅ API: Update driver location
 app.post("/update-location", async (req, res) => {
   try {
@@ -60,6 +71,7 @@ app.post("/update-location", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 // ✅ API: Get all active drivers on a route
 app.get("/get-drivers", async (req, res) => {
   try {
@@ -77,6 +89,7 @@ app.get("/get-drivers", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 // ✅ Cleanup: Delete driver documents older than 5 minutes
 setInterval(async () => {
   try {
@@ -90,7 +103,9 @@ setInterval(async () => {
     console.error("Cleanup error:", err);
   }
 }, 60 * 1000); // Runs every minute
+
 app.get("/", (req, res) => {
   res.send("Driver tracking backend is running ✅");
 });
+
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
