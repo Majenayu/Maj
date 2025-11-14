@@ -8,6 +8,119 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        .controls {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        #map {
+            height: 70vh;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 4px;
+            z-index: 1;
+        }
+        .info-table {
+            margin: 10px 0;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        #driverListContainer {
+            position: relative;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #driverListContainer h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        #driverList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #driverList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .selectDriver {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .selectDriver:hover {
+            background: #218838;
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+        .toast {
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
     <h2>User Route Tracking</h2>
@@ -41,8 +154,8 @@
         <button id="zoomIn">+</button>
         <button id="zoomOut">−</button>
     </div>
-    <div id="map" style="height: 70vh; width: 100%; margin-top: 10px;"></div>
-    <div id="driverListContainer" class="info-table" style="margin-top: 10px;">
+    <div id="map"></div>
+    <div id="driverListContainer">
         <h3>Available Drivers:</h3>
         <ul id="driverList"></ul>
     </div>
