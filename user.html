@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Route Tracking</title>
-
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,7 +16,6 @@
         <button id="selectOnMap">Select on Map</button>
         <button id="disableLocation">Disable Location</button>
     </div>
-
     <div class="controls">
         <label>Route</label>
         <select id="startPoint">
@@ -30,7 +27,6 @@
             <option value="Belagavi">🚌 Belagavi</option>
             <option value="Mysuru">🚌 Mysuru</option>
         </select>
-
         <select id="endPoint">
             <option value="Mangalore KSRTC">🚌 Mangalore KSRTC</option>
             <option value="Majestic, Bengaluru">🚌 Majestic, Bengaluru</option>
@@ -40,20 +36,16 @@
             <option value="Belagavi">🚌 Belagavi</option>
             <option value="Mysuru">🚌 Mysuru</option>
         </select>
-
         <button id="findDriver">Find Driver</button>
         <button id="gpsLocator">⬤</button>
         <button id="zoomIn">+</button>
         <button id="zoomOut">−</button>
     </div>
-
     <div id="map" style="height: 70vh; width: 100%; margin-top: 10px;"></div>
-
     <div id="driverListContainer" class="info-table" style="margin-top: 10px;">
         <h3>Available Drivers:</h3>
         <ul id="driverList"></ul>
     </div>
-
     <div class="info-table">
         <table>
             <tr><td>⏳ Current Time:</td><td id="currentTime">--:--:--</td></tr>
@@ -61,12 +53,7 @@
             <tr><td>🕒 Driver ETA:</td><td id="driverETA">-- min</td></tr>
         </table>
     </div>
-
     <div id="toastContainer" class="toast-container"></div>
-
     <script src="script1.js"></script>
 </body>
-
 </html>
-
-
